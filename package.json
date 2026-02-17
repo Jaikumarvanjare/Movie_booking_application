@@ -1,0 +1,23 @@
+{
+  "name": "airbnb",
+  "version": "1.0.0",
+  "description": "Airbnb backend project using Express",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "nodemon app.js",
+    "dev": "nodemon app.js"
+  },
+  "keywords": [],
+  "author": "Jai Kumar Vanjare",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^2.2.2",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "mongoose": "^9.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  }
+}
