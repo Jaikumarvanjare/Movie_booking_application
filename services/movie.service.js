@@ -1,17 +1,28 @@
 const Movie = require('../models/movie.model');
 
-const getMovieById = async(id) =>{
-    const movie = Movie.findById(id);
-    console.log(movie);
-    if(!movie){
-        return {
-            err : "No movie found for corresponding id provided",
-            code : 404,
-        }
-    };
-    return Movie;
+const createMovie = async (data) => {
+    const movie = await Movie.create(data);
+    return movie; 
 }
 
-module.exports= {
-    getMovieById
-} 
+const deleteMovie = async (id) => {
+    const response = await Movie.findByIdAndDelete(id);
+    return response;
+
+}
+const findById = async (id) => {
+    const movie = await Movie.findById(id);
+    if(!movie){
+        return{
+            err : "No movie found for the corresponding id provided",
+            code : 404
+        }
+    };
+    return movie;
+}
+
+module.exports = {
+    createMovie,
+    findById,
+    deleteMovie
+};
