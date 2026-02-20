@@ -73,9 +73,28 @@ const updateMovie = async (req, res) => {
     }
 }
 
+const getMovies = async (req, res) => {
+    try {
+        const response = await movieService.fetchMovies(req.query);
+        if(response.err) {
+            errorResponseBody.err = response.err;
+            errorResponseBody.message = "the fetching of movie is not available";
+
+            return res.status(response.code).json(errorResponseBody);
+        }
+        successResponseBody.data = response;
+        return res.status(200).json(successResponseBody);
+
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json(errorResponseBody);
+    }
+}
+
 module.exports = {
     createMovie,
     deleteMovie,
     getMovie,
-    updateMovie
+    updateMovie,
+    getMovies
 }
