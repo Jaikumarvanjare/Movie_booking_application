@@ -1,47 +1,86 @@
-const mongoose = require('mongoose'); 
+const mongoose = require('mongoose');
 
-/**
- * Define the schema of the movie resource to be stored in the db
- */
 const movieSchema = new mongoose.Schema({
+
     name: {
         type: String,
         required: true,
-        minLength: 2
+        trim: true,
+        minlength: 2
     },
+
     description: {
         type: String,
         required: true,
-        minLength: 5
+        trim: true,
+        minlength: 5
     },
+
     casts: {
         type: [String],
-        required: true
+        required: true,
+        validate: {
+            validator: function(arr) {
+                return arr.length > 0 &&
+                       arr.every(name => /^[A-Za-z .'-]+$/.test(name));
+            },
+            message: "Each cast name must contain only valid alphabetic characters"
+        }
     },
+
     trailerUrl: {
         type: String,
-        required: true
+        required: true,
+        trim: true,
+        validate: {
+            validator: function(value) {
+                return /^(https?:\/\/)(www\.)?(youtube\.com|youtu\.be)\/.+$/.test(value);
+            },
+            message: "Trailer URL must be a valid YouTube link"
+        }
     },
+
     language: {
         type: String,
         required: true,
+        trim: true,
         default: "English"
     },
+
     releaseDate: {
         type: String,
-        required: true
+        required: true,
+        validate: {
+            validator: function(value) {
+                return /^(19|20)\d{2}$/.test(value);
+            },
+            message: "Release date must be a valid 4-digit year"
+        }
     },
+
     director: {
         type: String,
-        required: true
+        required: true,
+        trim: true,
+        validate: {
+            validator: function(value) {
+                return /^[A-Za-z .'-]+$/.test(value);
+            },
+            message: "Director name must contain only valid alphabetic characters"
+        }
     },
+
     releaseStatus: {
         type: String,
         required: true,
-        default: "RELEASED",
-    },
-}, {timestamps: true});
+        enum: ["RELEASED", "UPCOMING", "POSTPONED", "CANCELLED"],
+        uppercase: true,
+        trim: true,
+        default: "UPCOMING"
+    }
 
-const Movie = mongoose.model('Movie', movieSchema); // creates a new model
+}, { timestamps: true });
 
-module.exports = Movie; // returning the model 
+const Movie = mongoose.model('Movie', movieSchema);
+
+module.exports = Movie;
