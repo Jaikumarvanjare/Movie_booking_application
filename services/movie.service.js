@@ -15,7 +15,7 @@ const createMovie = async (data) => {
         } else {
             throw error;
         }
-    }
+    } 
 }
 
 const deleteMovie = async (id) => {
