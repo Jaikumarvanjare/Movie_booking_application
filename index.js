@@ -9,7 +9,9 @@ app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
 
 const MovieRoutes = require('./routes/movie.routes');
+const TheatreRoutes = require('./routes/theatre.routes');
 MovieRoutes(app);
+TheatreRoutes(app);
 
 app.get('/home', (req,res)=>{
     console.log("hitting /Home");
