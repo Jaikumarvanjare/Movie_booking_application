@@ -57,9 +57,26 @@ const getTheatre= async (id) => {
     }    
 }
 
+const getAllTheatre= async () => {
+    try{
+        const response = await Theatre.find({});
+        if(!response){
+            return {
+                err : "No theatre found for the given id",
+                code: 404
+            }      
+        }
+        return response;
+    } catch(error) {
+        console.log(err);
+        throw error;
+    }    
+}
+
 
 module.exports = {
     createTheatre,
     deleteTheatre,
-    getTheatre
+    getTheatre,
+    getAllTheatre
 }
