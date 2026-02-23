@@ -1,8 +1,8 @@
-const theatre = require ('../models/theatre.model')
+const Theatre = require ('../models/theatre.model')
 
 const createTheatre = async (data) => {
     try{
-        const response = await theatre.create(data);
+        const response = await Theatre.create(data);
         return response;
     }
     catch(error){
@@ -19,6 +19,47 @@ const createTheatre = async (data) => {
     }    
 }
 
+const deleteTheatre = async(id) => {
+    try {
+        const response = await Theatre.findByIdAndDelete(id);
+        if(!response) {
+            return {
+                err: "No record of a theatre found for given id",
+                code: 404
+            }
+        }
+        return response;
+    }catch(error){
+        conmnsole.log(error);
+        throw error;
+    }
+}
+
+/**
+ * 
+ * @param id -> unique id by which we can fetch theatre
+ */
+
+const getTheatre= async (id) => {
+    try{
+        const response = await Theatre.findById(id);
+        if(!response){
+            return {
+                err : "No theatre found for the given id",
+                code: 404
+            }
+      
+        }
+        return response;
+    } catch(error) {
+        console.log(err);
+        throw error;
+    }    
+}
+
+
 module.exports = {
     createTheatre,
+    deleteTheatre,
+    getTheatre
 }
