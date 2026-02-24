@@ -1,5 +1,3 @@
-const Theatre = require ('../models/theatre.model')
-
 /**
  * 
  * @param data -> object containing details of new theatre to be created

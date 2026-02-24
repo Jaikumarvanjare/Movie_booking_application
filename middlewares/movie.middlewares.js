@@ -55,3 +55,4 @@ const validateMovieCreateRequest = (req, res, next) => {
 module.exports = {
     validateMovieCreateRequest
 };  
+  

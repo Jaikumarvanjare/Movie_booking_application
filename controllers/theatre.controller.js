@@ -43,7 +43,7 @@ const deleteTheatre = async (req, res) => {
         return res.status(200).json(successResponseBody);
     }
     catch(error){
-        errorResponseBody.data = reponse;
+        errorResponseBody.data = response;
         errorResponseBody.message = "Something went wrong, not deleted the theatre";
         return res.status(500).json(errorResponseBody);
         

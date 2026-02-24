@@ -1,5 +1,5 @@
 /**
- * this object will be used as a template for building error responses
+ * this object will be used as a template for building error response
  */
 
 const errorResponseBody = {
