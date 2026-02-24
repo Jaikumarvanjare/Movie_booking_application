@@ -31,6 +31,7 @@ const deleteMovie = async (id) => {
     }catch(error){
         console.log(error);
             throw error;
+            
     }
 }
 

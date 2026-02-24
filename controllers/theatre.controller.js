@@ -60,7 +60,7 @@ const getTheatre = async (req, res) => {
 
 const getTheatres = async (req, res) => {
     try {
-        const response = await theatreService.getAllTheatre();
+        const response = await theatreService.getAllTheatre(req.query);
          if(response.err) {
             errorResponseBody.err = response.err;
             return res.status(response.code).json(errorResponseBody);

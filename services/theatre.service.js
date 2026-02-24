@@ -57,15 +57,20 @@ const getTheatre= async (id) => {
     }    
 }
 
-const getAllTheatre= async () => {
+const getAllTheatre= async (data) => {
     try{
-        const response = await Theatre.find({});
-        if(!response){
-            return {
-                err : "No theatre found for the given id",
-                code: 404
-            }      
+        let query = {};
+        if(data && data.city) {
+            query.city = data.city;
+        } 
+        if(data && data.pincode) {
+            query.pincode = data.pincode;
         }
+        if(data && data.name) {
+            query.name = data.name;
+        }
+        const response = await Theatre.find(query);    
+
         return response;
     } catch(error) {
         console.log(err);
