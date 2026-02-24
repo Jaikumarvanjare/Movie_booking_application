@@ -1,4 +1,9 @@
 const Movie = require('../models/movie.model');
+/**
+ * 
+ * @param data -> object containing details of new movie to be created
+ * @returns -> returns the new movie created
+ */
 
 const createMovie = async (data) => {
     try {
@@ -18,6 +23,12 @@ const createMovie = async (data) => {
     } 
 }
 
+/**
+ * 
+ * @param id -> id which will be used to identify movie to be deleted
+ * @returns -> object containing details of the movie deleted
+ */
+
 const deleteMovie = async (id) => {
     try{
         const movie = await Movie.findByIdAndDelete(id);
@@ -35,6 +46,12 @@ const deleteMovie = async (id) => {
     }
 }
 
+/**
+ * 
+ * @param id -> id which will be used to identify movie to be fetched
+ * @returns -> object containing details of the movie fetched
+ */
+
 const getMoviById = async (id) => {
     const movie = await Movie.findById(id);
     if(!movie) {
@@ -45,6 +62,13 @@ const getMoviById = async (id) => {
     };
     return movie;
 }
+
+/**
+ * 
+ * @param id -> id which will be used to identify movie to be updated
+ * @param data -> object containing details of movie to be updated
+ * @returns -> object containing details of the movie updated
+ */
 
 const updateMovie = async (id,data) =>{
     
@@ -66,6 +90,11 @@ const updateMovie = async (id,data) =>{
 
 }
 
+/**
+ * 
+ * @param filter -> filter will be used to filtering out movie based on the conditions
+ * @returns -> object containing all the movies fetched based on the filter condtions
+ */
 
 const fetchMovies = async (filter) => {
     let query = {};

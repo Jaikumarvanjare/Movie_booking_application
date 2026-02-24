@@ -1,5 +1,11 @@
 const theatreService = require('../services/theatre.service');
 const {successResponseBody, errorResponseBody} = require('../utils/responsebody');
+
+/**
+ * Controller function to create a new theatre
+ * @returns theatre created
+ */
+
 const createTheatre = async (req, res) => {
     try {
         const response = await theatreService.createTheatre(req.body);
@@ -20,6 +26,11 @@ const createTheatre = async (req, res) => {
     }
 }
 
+/**
+ * Controller function to delete theatre
+ * @returns theatre delete
+ */
+
 const deleteTheatre = async (req, res) => {
     try {
         const response = await theatreService.deleteTheatre(req.params.id);
@@ -38,6 +49,11 @@ const deleteTheatre = async (req, res) => {
         
     }
 }
+
+/**
+ * Controller function to fetch a theatre
+ * @returns theatre fetched
+ */
 
 const getTheatre = async (req, res) => {
     try {
@@ -58,6 +74,11 @@ const getTheatre = async (req, res) => {
     }
 }
 
+/**
+ * Controller function to fetch theatres
+ * @returns theatres fetched
+ */
+
 const getTheatres = async (req, res) => {
     try {
         const response = await theatreService.getAllTheatre(req.query);
@@ -76,6 +97,11 @@ const getTheatres = async (req, res) => {
         
     }
 }
+
+/**
+ * Controller function to update a new theatre
+ * @returns theatre updated
+ */
 
 const updateTheatre = async (req, res) => {
     try {

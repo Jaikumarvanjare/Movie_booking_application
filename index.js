@@ -1,34 +1,30 @@
 const express= require('express');
 const env= require('dotenv').config();
 const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
-
-const app= express();
-app.use(express.json());
-app.use(bodyParser.urlencoded({extended:true}));
-app.use(bodyParser.json());
 
 const MovieRoutes = require('./routes/movie.routes');
 const TheatreRoutes = require('./routes/theatre.routes');
+
+const app= express();
+app.use(express.urlencoded({extended:true}));
+app.use(express.json());
+
 MovieRoutes(app);
 TheatreRoutes(app);
 
-app.get('/home', (req,res)=>{
-    console.log("hitting /Home");
-    return res.json({
-        success:true,
-        message:"fetched home"
-    })   
-})
-
-app.listen(process.env.PORT, async() => {
-    console.log(`server running on http://localhost:${process.env.PORT}`);
-
-    mongoose.connect(process.env.DB_URL)
-    .then(async () => {
+const startServer = async () => {
+    try {
+        await mongoose.connect(process.env.DB_URL);
         console.log("Connected to MongoDB");
-    })
-    .catch((err) => {
+
+        app.listen(process.env.PORT, () => {
+            console.log(`Server running on http://localhost:${process.env.PORT}`);
+        });
+
+    } catch (err) {
         console.log("Not able to connect to MongoDB", err);
-    });
-});
+        process.exit(1);
+    }
+};
+
+startServer();
