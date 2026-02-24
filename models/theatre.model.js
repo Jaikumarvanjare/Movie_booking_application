@@ -36,6 +36,11 @@ const theatreSchema = new mongoose.Schema({
     address: {
         type: String,
         trim: true
+    },
+
+    movies : {
+        type : [mongoose.Schema.Types.ObjectId],
+        ref : 'Movie'
     }
 }, {timestamps : true});
 
