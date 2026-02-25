@@ -1,3 +1,4 @@
+const Theatre = require ('../models/theatre.model')
 /**
  * 
  * @param data -> object containing details of new theatre to be created
@@ -79,8 +80,7 @@ const getAllTheatre= async (data) => {
         let pagination = {};
         if(data && data.city) {
             query.city = data.city;
-        } const Theatre = require ('../models/theatre.model')
-
+        } 
         if(data && data.pincode) {
             query.pincode = data.pincode;
         }
@@ -135,10 +135,43 @@ const updateTheatre = async (id, data) => {
 }
 
 
+/**
+ * 
+ * @param theatreId -> id of the theatre for updated movies
+ * @param movieId -> array of the movie  ids that are expected to be updated in theatre
+ * @param insert -> boolean that tells whether insert or remove movies
+ * @returns -> updated theatre object
+ */
+
+const updateMoviesInTheatre = async (theatreId, movieIds, insert) => {
+    const theatre = await Theatre.findById(theatreId);
+    if(!theatre){
+        return {
+            err : " No such theatre found for the id provided",
+            code : 404
+        };
+    }
+    if(insert) {
+        movieIds.forEach(movieId => {
+            theatre.movies.push(movieId);
+        });
+    } else {
+        let savedMovieIds = theatre.movies;
+        movieIds.forEach(movieIds => {
+            savedMovieIds = savedMovieIds.filter(smi =>smi == movieIds);
+        });
+        theatre.movies = savedMovieIds;
+    }
+    await theatre.save();
+    return theatre.populate('movies');
+}
+
+
 module.exports = {
     createTheatre,
     deleteTheatre,
     getTheatre,
     getAllTheatre,
-    updateTheatre
+    updateTheatre,
+    updateMoviesInTheatre
 }
