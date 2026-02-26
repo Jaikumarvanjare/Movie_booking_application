@@ -145,23 +145,24 @@ const updateTheatre = async (id, data) => {
 
 const updateMoviesInTheatre = async (theatreId, moviesIds, insert) => {   
 try{
+    let theatre;
     if(insert) {
-    await Theatre.updateOne(
-        {_id: theatreId},
-        {$addToSet: {movies: {$each:moviesIds}}}
-    )
-            
-    } else {
-        await Theatre.updateOne(
+        theatre = await Theatre.findByIdAndUpdate(
             {_id: theatreId},
-            {$pull: {movies: {$in:moviesIds}}}
-        )
+            {$addToSet: {movies: {$each:moviesIds}}},
+            {new : true}
+        );
+    } else {
+        theatre = await Theatre.updupdateOneateOne(
+            {_id: theatreId},
+            {$pull: {movies: {$in:moviesIds}}},
+            {new : true}
+        );
     }
-    const theatre = await Theatre.findById(theatreId)
     return theatre.populate('movies');
 } catch(error){
     if(error.name == 'TypeError') {
-        return {
+        return {  
             code : 404,
             err : 'Not theatre found for the given id'
         }
