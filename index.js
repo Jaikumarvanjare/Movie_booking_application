@@ -9,6 +9,8 @@ const app= express();
 app.use(express.urlencoded({extended:true}));
 app.use(express.json());
 
+mongoose.set('debug', true);    
+
 MovieRoutes(app);
 TheatreRoutes(app);
 

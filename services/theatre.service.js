@@ -1,4 +1,6 @@
 const Theatre = require ('../models/theatre.model')
+const Movie = require('../models/movie.model')
+
 /**
  * 
  * @param data -> object containing details of new theatre to be created
@@ -90,6 +92,11 @@ const getAllTheatre= async (data) => {
         if(data && data.limit){
             pagination.limit = data.limit;
         }
+        if(data && data.movieId){
+            // let movie = await Movie.findById(data.movieId)
+            query.movies = {$all : data.movieId}
+        }
+
         if(data && data.skip){
             let perPage = (data.limit) ? data.limit :3;
             pagination.skip = data.skip*perPage;
