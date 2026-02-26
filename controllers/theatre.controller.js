@@ -84,10 +84,10 @@ const getTheatres = async (req, res) => {
         const response = await theatreService.getAllTheatre(req.query);
          if(response.err) {
             errorResponseBody.err = response.err;
+            errorResponseBody.message = "the fetching of theatre is not available";
             return res.status(response.code).json(errorResponseBody);
         }
         successResponseBody.data = response;
-        successResponseBody.message = "Successfully created the theatre";
         return res.status(200).json(successResponseBody);
     }
     catch(error){

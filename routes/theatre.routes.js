@@ -39,7 +39,8 @@ const routes = (app) =>{
           '/mba/api/v1/theatres/:id',
           theatreController.updateTheatre
      );
-
+     
+     //UPDATE
      app.patch(
           '/mba/api/v1/theatres/:id/movies',
           theatreMiddleware.validateUpdateMovies,
