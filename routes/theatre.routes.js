@@ -42,10 +42,14 @@ const routes = (app) =>{
      
      //UPDATE
      app.patch(
-          '/mba/api/v1/theatres/:id/movies',
+          '/mba/api/v1/theatres/:id/movies',       
           theatreMiddleware.validateUpdateMovies,
           theatreController.updateMovies
-
+     );
+     //GET
+     app.get(
+          '/mba/api/v1/theatres/:id/movies',
+          theatreController.getMovies
      );
 }
 
