@@ -39,6 +39,25 @@ const routes = (app) =>{
           '/mba/api/v1/theatres/:id',
           theatreController.updateTheatre
      );
+     
+     //UPDATE
+     app.patch(
+          '/mba/api/v1/theatres/:id/movies',       
+          theatreMiddleware.validateUpdateMovies,
+          theatreController.updateMovies
+     );
+     //GET
+     app.get(
+          '/mba/api/v1/theatres/:id/movies',
+          theatreController.getMovies
+     );
+
+     //GET
+     app.get(
+        '/mba/api/v1/theatres/:theatreId/movies/:movieId',
+        theatreController.checkMovie
+     );
 }
 
 module.exports = routes;
+ 

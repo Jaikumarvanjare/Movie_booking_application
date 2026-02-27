@@ -1,3 +1,7 @@
+const Theatre = require ('../models/theatre.model')
+const Movie = require('../models/movie.model');
+const { response } = require('express');
+
 /**
  * 
  * @param data -> object containing details of new theatre to be created
@@ -79,8 +83,7 @@ const getAllTheatre= async (data) => {
         let pagination = {};
         if(data && data.city) {
             query.city = data.city;
-        } const Theatre = require ('../models/theatre.model')
-
+        } 
         if(data && data.pincode) {
             query.pincode = data.pincode;
         }
@@ -90,6 +93,11 @@ const getAllTheatre= async (data) => {
         if(data && data.limit){
             pagination.limit = data.limit;
         }
+        if(data && data.movieId){
+            // let movie = await Movie.findById(data.movieId)
+            query.movies = {$all : data.movieId}
+        }
+
         if(data && data.skip){
             let perPage = (data.limit) ? data.limit :3;
             pagination.skip = data.skip*perPage;
@@ -135,10 +143,82 @@ const updateTheatre = async (id, data) => {
 }
 
 
+/**
+ * 
+ * @param theatreId -> id of the theatre for updated movies
+ * @param movieId -> array of the movie  ids that are expected to be updated in theatre
+ * @param insert -> boolean that tells whether insert or remove movies
+ * @returns -> updated theatre object
+ */
+
+const updateMoviesInTheatre = async (theatreId, moviesIds, insert) => {   
+try{
+    let theatre;
+    if(insert) {
+        theatre = await Theatre.findByIdAndUpdate(
+            {_id: theatreId},
+            {$addToSet: {movies: {$each:moviesIds}}},
+            {new : true}
+        );
+    } else {
+        theatre = await Theatre.updupdateOneateOne(
+            {_id: theatreId},
+            {$pull: {movies: {$in:moviesIds}}},
+            {new : true}
+        );
+    }
+    return theatre.populate('movies');
+} catch(error){
+    if(error.name == 'TypeError') {
+        return {  
+            code : 404,
+            err : 'Not theatre found for the given id'
+        }
+    }
+    console.log(error);
+    throw error;
+    }
+}
+
+const getMoviesInTheatre = async (id) => {   
+    try{
+        const theatre = await Theatre.findById(id, {name:1, movies:1, address:1}).populate('movies');
+        if(!theatre){
+            return {
+                err: "No theatre with given id",
+                code :404
+            }
+        }
+        return theatre;
+    } catch(error){
+        console.log(error);
+        throw error;
+    }
+}
+
+const checkMovieInATheatre = async (theatreId, movieId) => {
+    try {
+        let response = await Theatre.findById(theatreId);
+        if(!response) {
+            return {
+                err: "No such theatre found for the given id",
+                code: 404
+            }
+        }
+        return response.movies.indexOf(movieId) != -1;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
 module.exports = {
     createTheatre,
     deleteTheatre,
     getTheatre,
     getAllTheatre,
-    updateTheatre
+    updateTheatre,
+    updateMoviesInTheatre,
+    getMoviesInTheatre,
+    checkMovieInATheatre
 }
