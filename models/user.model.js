@@ -10,7 +10,7 @@ const userSchema =new mongoose.Schema({
         type : String,
         required : true,
         unique : true,
-        match : [,/^\w+([\.-]?\w+)*@\w+([\-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email'],
+        match : [/^\w+([\.-]?\w+)*@\w+([\-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email'],
         lowercase : true,
         trim : true
     },
@@ -26,10 +26,10 @@ const userSchema =new mongoose.Schema({
     },
     userStatus : {
         type : String, 
-        requireed : true,
+        required : true,
         default : "APPROVED"
     }
-}, {timeStamp : true});
+}, {timeStamps : true});
 
 const User = mongoose.model('User', userSchema);
 module.exports = User;

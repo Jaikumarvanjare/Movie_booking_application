@@ -2,8 +2,10 @@ const express= require('express');
 const env= require('dotenv').config();
 const mongoose = require('mongoose');
 
-const MovieRoutes = require('./routes/movie.routes');
-const TheatreRoutes = require('./routes/theatre.routes');
+const movieRoutes = require('./routes/movie.routes');
+const theatreRoutes = require('./routes/theatre.routes');
+const authRoutes = require('./routes/auth.routes');
+
 
 const app= express();
 app.use(express.urlencoded({extended:true}));
@@ -11,8 +13,9 @@ app.use(express.json());
 
 mongoose.set('debug', true);    
 
-MovieRoutes(app);
-TheatreRoutes(app);
+movieRoutes(app);
+theatreRoutes(app);
+authRoutes(app);
 
 const startServer = async () => {
     try {
