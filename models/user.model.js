@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const {USER_ROLE,USER_STATUS} = require('../utils/constants')
 const userSchema =new mongoose.Schema({
     name : {
         type : String,
@@ -22,12 +23,20 @@ const userSchema =new mongoose.Schema({
     userType : {
         type : String,
         required : true,
-        default : "CUSTOMER"
+        enum : {
+            values: [USER_ROLE.customer, USER_ROLE.admin, USER_ROLE.client],
+            message : "Invalid user role given"
+        },
+        default : USER_ROLE.customer
     },
     userStatus : {
         type : String, 
-        required : true,
-        default : "APPROVED"
+        required : true,  
+        enum : {
+            values : [USER_STATUS.approved, USER_STATUS.pending, USER_STATUS.rejected],
+            message : "invalid user status given"
+        },
+        default : USER_STATUS.approved
     }
 }, {timeStamps : true});
 
