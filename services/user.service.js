@@ -6,7 +6,7 @@ const createUser = async (data) =>{
         if(!data.userRole || data.userRole == USER_ROLE.customer){
             if(data.userStatus && data.userStatus!= USER_STATUS.approved){
                 throw {
-                    err :"we cannot set any other status for customer", 
+                    err :"we canot set the the any other type fopr the user", 
                     code : 400
                 };
             }
