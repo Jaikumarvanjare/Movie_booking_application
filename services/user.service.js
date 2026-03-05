@@ -6,7 +6,7 @@ const createUser = async (data) =>{
         if(!data.userType || data.userType == USER_ROLE.customer){
             if(data.userStatus && data.userStatus!= USER_STATUS.approved){
                 throw {
-                    err :"we canot set the the any other type fopr the user", 
+                    err :"we canot set the any other type for this user", 
                     code : 400
                 };
             }
