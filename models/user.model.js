@@ -38,14 +38,13 @@ const userSchema =new mongoose.Schema({
         },
         default : USER_STATUS.approved
     }
-}, {timeStamps : true});
+}, { timestamps : true});
 
-userSchema.pre('save', async function (){  
+userSchema.pre('save', async function () {  
     if (!this.isModified('password')) return;
 
-    const hash =  await bcrypt.hash(this.password, 10);
-    this.password = hash;
-})
+    this.password = await bcrypt.hash(this.password, 10);
+});
 
 /**
  * This is going to be an instance method for user, to compare a password
@@ -53,10 +52,8 @@ userSchema.pre('save', async function (){
  * @param plainPassword -> input password given by user in sign in request
  * @returns boolean denoting whether passwords are same or not ?
  */
-userSchema.methods.isVlidPasswords = async (plainPassword) =>{
-    const currentUser = this;
-    const compare = await bcrypt.compare(plainPassword, currentUser.password);
-    return compare
+userSchema.methods.isValidPassword = async function(plainPassword) {
+    return bcrypt.compare(plainPassword, this.password);
 }
 const User = mongoose.model('User', userSchema);
-module.exports = User;T
+module.exports = User;

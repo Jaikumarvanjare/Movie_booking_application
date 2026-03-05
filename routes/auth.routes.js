@@ -7,6 +7,10 @@ const routes = (app) =>{
         authMiddleware.validateSignupRequest,
         authController.signup
     );
+    app.post(
+        '/mba/api/v1/auth/signin',
+        authController.signin
+    );
 }
 
 module.exports = routes;
