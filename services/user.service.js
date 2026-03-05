@@ -18,11 +18,8 @@ const createUser = async (data) =>{
         const response = await  User.create(data);
         console.log(response);
         return response;
-
     } catch(error){
-
         console.log(error);
-
         if(error.name =='ValidationError'){
             let err = {};
             Object.keys(error.errors).forEach((key) => {
@@ -30,7 +27,6 @@ const createUser = async (data) =>{
             });
             throw {err : err, code : 422};
         }
-
         throw error;
     }
 }
@@ -40,22 +36,30 @@ const getUserByEmail = async (email) => {
         const response =await User.findOne({
             email: email
         });
-
         if(!response){
             throw {err : 'No user found for the given email', code :404};
         }
-
         return response;
-
     }catch (error){
-
         console.log(error);
-
         throw error;
     }
 }
 
+const getUserById = async(id) => {
+    try{
+        const user = await User.findById(id);
+        if(!user){
+            throw {err : "No user found for the given id", code : 404};
+        }
+        return user;
+    }catch(error){
+        console.log(error);    
+    throw error;
+    }
+}
 module.exports = {
     createUser,
-    getUserByEmail
+    getUserByEmail,
+    getUserById
 }
