@@ -1,4 +1,6 @@
 const {errorResponseBody} = require('../utils/responsebody');
+const jwt = require("jsonwebtoken")
+const userService = require("../services/user.service")
 
 /**
  * validator for user signup
@@ -48,30 +50,46 @@ const validateSigninRequest = (req,res,next)=>{
 
 const isAuthenticated = async (req, res, next) => {
     try {
-        const token = req.headers["Authorization"];
-        console.log(token);
-        if(!token){
+
+        const authHeader = req.headers.authorization || req.headers.Authorization;
+
+        if(!authHeader){
             errorResponseBody.err = "No token provided";
             return res.status(403).json(errorResponseBody);
         }
-        const response= JsonWebTokenError.verify(token, process.env.AUTH_KEY);
+
+        const token = authHeader.split(" ")[1];
+
+        console.log("Token:", token);
+
+        const response = jwt.verify(token, process.env.AUTH_KEY);
+
+        console.log("Decoded:", response);
+
         if(!response){
             errorResponseBody.err = "Token not verified";
             return res.status(401).json(errorResponseBody);
         }
+
         const user = await userService.getUserById(response.id);
+
         req.user = user.id;
+
         next();
-    } catch (error){
-        if(error.name == "JsonWebTokenError"){
+
+    } catch (error) {
+        console.log("JWT ERROR:", error);
+        if(error.name === "JsonWebTokenError"){
             errorResponseBody.err = error.message;
             return res.status(401).json(errorResponseBody);
         }
-        if(error.code ==404){
-            errorResponseBody.err = "User does not exist";
+
+        if(error.code === 404){
+            errorResponseBody.err = "User doesn't exist";
             return res.status(error.code).json(errorResponseBody);
         }
-        errorResponseBody.err =error;
+
+        errorResponseBody.err = error;
         return res.status(500).json(errorResponseBody);
     }
 }
