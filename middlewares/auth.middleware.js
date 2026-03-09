@@ -50,33 +50,22 @@ const validateSigninRequest = (req,res,next)=>{
 
 const isAuthenticated = async (req, res, next) => {
     try {
-
         const authHeader = req.headers.authorization || req.headers.Authorization;
-
         if(!authHeader){
             errorResponseBody.err = "No token provided";
             return res.status(403).json(errorResponseBody);
         }
-
         const token = authHeader.split(" ")[1];
-
         console.log("Token:", token);
-
         const response = jwt.verify(token, process.env.AUTH_KEY);
-
         console.log("Decoded:", response);
-
         if(!response){
             errorResponseBody.err = "Token not verified";
             return res.status(401).json(errorResponseBody);
         }
-
         const user = await userService.getUserById(response.id);
-
         req.user = user.id;
-
         next();
-
     } catch (error) {
         console.log("JWT ERROR:", error);
         if(error.name === "JsonWebTokenError"){
@@ -94,8 +83,22 @@ const isAuthenticated = async (req, res, next) => {
     }
 }
 
+const validateResetPasswordRequest = async (req, res, next) =>{
+    if(!req.body.oldPassword){
+        errorResponseBody.err = 'Missing the old password in the request';
+        return res.status(400).json(errorResponseBody);
+    }
+
+    if(!req.body.newPassword){
+        errorResponseBody.err = 'Missing the new password in the request';
+        return res.status(400).json(errorResponseBody);
+    }
+    next();
+}    
+
 module.exports ={
     validateSignupRequest, 
     validateSigninRequest,
-    isAuthenticated
+    isAuthenticated,
+    validateResetPasswordRequest
 }

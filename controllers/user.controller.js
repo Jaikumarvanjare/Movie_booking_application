@@ -11,7 +11,7 @@ const update = async (req , res) => {
     } catch (error) {
         if(error.err){
             errorResponseBody.err = error.err;
-            return res.status(500).json(successResponseBody);
+            return res.status(500).json(errorResponseBody);
         }
         errorResponseBody.err= error.err;
         return res.status(500).json(errorResponseBody);
