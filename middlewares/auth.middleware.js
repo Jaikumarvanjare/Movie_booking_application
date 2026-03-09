@@ -56,8 +56,15 @@ const isAuthenticated = async (req, res, next) => {
             errorResponseBody.err = "No token provided";
             return res.status(403).json(errorResponseBody);
         }
-        const token = authHeader.split(" ")[1];
-        console.log("Token:", token);
+        const token = authHeader && authHeader.split(" ")[1];
+
+        if(!token){
+            return res.status(403).json({
+                success:false,
+                message:"Token missing",
+                err:"Authorization header malformed"
+            });
+        }        console.log("Token:", token);
         const response = jwt.verify(token, process.env.AUTH_KEY);
         console.log("Decoded:", response);
         if(!response){
@@ -101,7 +108,7 @@ const isAdmin = async (req,res,next) => {
     console.log(req.user);
     const user =await userService.getUserById(req.user);
     if(user.userRole != USER_ROLE.admin){
-        errorResponseBody.errr = 'User is not an admin, cannot proceed with the request';
+        errorResponseBody.err = 'User is not an admin, cannot proceed with the request';
         return res.status(401).json(errorResponseBody);
     }
     next();
@@ -110,7 +117,7 @@ const isAdmin = async (req,res,next) => {
 const isClient = async(req,res,next) =>{
     const user = await userService.getUserById(req.user);
     if(user.userRole != USER_ROLE.client){
-        errorResponseBody.errr = 'User is not an client, cannot proceed with the request';
+        errorResponseBody.err = 'User is not an client, cannot proceed with the request';
     return res.status(401).json(errorResponseBody);
     }
     next();
@@ -118,7 +125,7 @@ const isClient = async(req,res,next) =>{
 
 const isAdminOrClient = async(req,res,next) =>{
     const user = await userService.getUserById(req.user);
-    if(user.userRole != USER_ROLE.client  && user.userRole != USER_ROLE.client){
+    if(user.userRole != USER_ROLE.client  && user.userRole != USER_ROLE.admin){
         errorResponseBody.err = "User is neither a client not an admin, cannot proceed with the request";
         return res.status(401).json(errorResponseBody);
     }
