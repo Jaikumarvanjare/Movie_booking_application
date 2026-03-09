@@ -1,11 +1,14 @@
 const theatreController = require('../controllers/theatre.controller');
 const theatreMiddleware = require('../middlewares/theatre.middleware');
+const authMiddleware = require('../middlewares/auth.middleware');
+
 const routes = (app) =>{
      //routes function takes express app object as parameter
 
      //CREATE
     app.post(
         '/mba/api/v1/theatres',
+        authMiddleware.isAuthenticated,
         theatreMiddleware.validateTheatreCreateRequest,
         theatreController.createTheatre
      );
@@ -13,6 +16,7 @@ const routes = (app) =>{
      //DELETE     
      app.delete(
           '/mba/api/v1/theatres/:id',
+          authMiddleware.isAuthenticated,
           theatreController.deleteTheatre
      );
 
@@ -31,18 +35,21 @@ const routes = (app) =>{
      //UPDATE
      app.patch(
           '/mba/api/v1/theatres/:id',
+          authMiddleware.isAuthenticated,
           theatreController.updateTheatre
      );
 
      //UPDATE
      app.put(
           '/mba/api/v1/theatres/:id',
+          authMiddleware.isAuthenticated,
           theatreController.updateTheatre
      );
      
      //UPDATE
      app.patch(
-          '/mba/api/v1/theatres/:id/movies',       
+          '/mba/api/v1/theatres/:id/movies',  
+          authMiddleware.isAuthenticated,
           theatreMiddleware.validateUpdateMovies,
           theatreController.updateMovies
      );
@@ -54,8 +61,8 @@ const routes = (app) =>{
 
      //GET
      app.get(
-        '/mba/api/v1/theatres/:theatreId/movies/:movieId',
-        theatreController.checkMovie
+          '/mba/api/v1/theatres/:theatreId/movies/:movieId',
+          theatreController.checkMovie
      );
 }
 

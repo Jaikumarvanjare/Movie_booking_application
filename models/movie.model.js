@@ -27,7 +27,6 @@ const movieSchema = new mongoose.Schema({
             message: "Each cast name must contain only valid alphabetic characters"
         }
     },
-
     trailerUrl: {
         type: String,
         required: true,
