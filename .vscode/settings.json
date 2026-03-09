@@ -1,0 +1,34 @@
+{
+    "terminal.integrated.sendKeybindingsToShell": true,
+    "cmake.configureOnOpen": true,
+    "cmake.useCMakePresets": "always",
+    "explorer.confirmDelete": false,
+    "cmake.additionalCompilerSearchDirs": [
+        "C:/msys64/mingw32/bin",
+        "C:/msys64/clang32/bin",
+        "C:/msys64/clang64/bin",
+        "C:/msys64/clangarm64/bin",
+        "C:/msys64/ucrt64/bin"
+    ],
+    "debug.onTaskErrors": "debugAnyway",
+    "files.autoSave": "afterDelay",
+    "workbench.editor.enablePreview": false,
+    "[html]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[css]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "liveServer.settings.donotShowInfoMsg": true,
+    "git.enableSmartCommit": true,
+    "jupyter.askForKernelRestart": false,
+    "workbench.editor.empty.hint": "hidden",
+    "gitlens.ai.model": "vscode",
+    "gitlens.ai.vscode.model": "copilot:gpt-4.1",
+    "workbench.iconTheme": "material-icon-theme",
+    "terminal.integrated.fontWeightBold": "bold",
+    "editor.fontLigatures": true,
+    "editor.fontFamily": "'CaskaydiaCove Nerd Font', Consolas, monospace",
+    "terminal.integrated.fontFamily": "'CaskaydiaCove Nerd Font'",
+    "editor.inlineSuggest.fontFamily": "'CaskaydiaCove Nerd Font'",
+}
