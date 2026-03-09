@@ -31,18 +31,17 @@ const createTheatre = async (req, res) => {
 const deleteTheatre = async (req, res) => {
     try {
         const response = await theatreService.deleteTheatre(req.params.id);
-         if(response.err) {
-            errorResponseBody.err = response.err;
-            return res.status(response.code).json(errorResponseBody);
-        }
         successResponseBody.data = response;
         successResponseBody.message = "Successfully deleted the given theatre";
-        return res.status(200).json(successResponseBody);
+        return res.status(STATUS.CREATED).json(successResponseBody);
     }
     catch(error){
-        errorResponseBody.data = response;
-        errorResponseBody.message = "Something went wrong, not deleted the theatre";
-        return res.status(500).json(errorResponseBody);
+        if(error.err){
+            errorResponseBody.data = error.err;
+            return res.status(error.code).json(errorResponseBody);
+        }
+        errorResponseBody.err=error;
+        return res.status(STATUS.INTERNAL_SERVER_ERROR).json(errorResponseBody);
         
     }
 }
