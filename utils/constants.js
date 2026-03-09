@@ -1,3 +1,5 @@
+const { CANCELLED } = require("node:dns");
+
 const USER_STATUS ={
     approved : "APPROVED",
     pending : "PENDING",
@@ -21,9 +23,15 @@ const STATUS_CODES = {
     UNPROCESSABLE_ENTITY: 422
 }
 
+const BOOKING_STATUS ={
+    cancelled : "CANCELLED",
+    successfull : "SUCCESSFULL",
+    processing : "PROCESSING"
+}
 
 module.exports = {
     USER_ROLE,
     USER_STATUS,
-    STATUS : STATUS_CODES          
+    STATUS : STATUS_CODES,
+    BOOKING_STATUS          
 }
