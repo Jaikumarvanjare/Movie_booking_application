@@ -16,6 +16,7 @@ const routes = (app) =>{
         '/mba/api/v1/auth/reset',
         authMiddleware.isAuthenticated,
         authMiddleware.validateResetPasswordRequest,
+        authMiddleware.isAdmin,
         authController.resetPassword
     );
 }
