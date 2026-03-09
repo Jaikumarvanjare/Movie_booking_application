@@ -1,7 +1,7 @@
 const {errorResponseBody} = require('../utils/responsebody');
 const jwt = require("jsonwebtoken")
 const userService = require("../services/user.service");
-const { error } = require('node:console');
+const {USER_ROLE} =require('../utils/constants');
 
 /**
  * validator for user signup
