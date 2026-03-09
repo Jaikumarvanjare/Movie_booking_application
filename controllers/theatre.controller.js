@@ -33,11 +33,11 @@ const deleteTheatre = async (req, res) => {
         const response = await theatreService.deleteTheatre(req.params.id);
         successResponseBody.data = response;
         successResponseBody.message = "Successfully deleted the given theatre";
-        return res.status(STATUS.CREATED).json(successResponseBody);
+        return res.status(STATUS.OK).json(successResponseBody);
     }
     catch(error){
         if(error.err){
-            errorResponseBody.data = error.err;
+            errorResponseBody.err = error.err;
             return res.status(error.code).json(errorResponseBody);
         }
         errorResponseBody.err=error;
@@ -54,18 +54,17 @@ const deleteTheatre = async (req, res) => {
 const getTheatre = async (req, res) => {
     try {
         const response = await theatreService.getTheatre(req.params.id);
-         if(response.err) {
-            errorResponseBody.err = response.err;
-            return res.status(response.code).json(errorResponseBody);
-        }
         successResponseBody.data = response;
         successResponseBody.message = "Successfully created the theatre";
-        return res.status(200).json(successResponseBody);
+        return res.status(STATUS.OK).json(successResponseBody);
     }
     catch(error){
+        if(error.err) {
+           errorResponseBody.err = error.err;
+           return res.status(error.code).json(errorResponseBody);
+       }
         errorResponseBody.data = response;
-        errorResponseBody.message = "Something went wrong, not created the theatre";
-        return res.status(500).json(errorResponseBody);
+        return res.status(STATUS.INTERNAL_SERVER_ERROR).json(errorResponseBody);
         
     }
 }
