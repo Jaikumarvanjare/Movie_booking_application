@@ -1,6 +1,6 @@
 const Theatre = require ('../models/theatre.model')
 const Movie = require('../models/movie.model');
-const { response } = require('express');
+const { STATUS } = require('../utils/constants');
 
 /**
  * 
@@ -19,11 +19,10 @@ const createTheatre = async (data) => {
             Object.keys(error.errors).forEach((key) => {
                 err[key] = error.errors[key].message;
             });
-            console.log(err);
-            return {err: err, code: 422};
-        } else {
-            throw error;
+            throw {err: err, code: STATUS.UNPROCESSABLE_ENTITY};
         }
+        console.log(err);
+        throw error;
     }    
 }
 
@@ -151,32 +150,34 @@ const updateTheatre = async (id, data) => {
  * @returns -> updated theatre object
  */
 
-const updateMoviesInTheatre = async (theatreId, moviesIds, insert) => {   
-try{
-    let theatre;
-    if(insert) {
-        theatre = await Theatre.findByIdAndUpdate(
-            {_id: theatreId},
-            {$addToSet: {movies: {$each:moviesIds}}},
-            {new : true}
-        );
-    } else {
-        theatre = await Theatre.updupdateOneateOne(
-            {_id: theatreId},
-            {$pull: {movies: {$in:moviesIds}}},
-            {new : true}
-        );
-    }
-    return theatre.populate('movies');
-} catch(error){
-    if(error.name == 'TypeError') {
-        return {  
-            code : 404,
-            err : 'Not theatre found for the given id'
+const updateMoviesInTheatre = async (theatreId, moviesIds, insert) => {
+    try {
+        let theatre;
+        if(insert) {
+            theatre = await Theatre.findByIdAndUpdate(
+                theatreId,
+                { $addToSet: { movies: { $each: moviesIds } } },
+                { new: true }
+            );
+        } 
+        else {
+            theatre = await Theatre.findByIdAndUpdate(
+                theatreId,
+                { $pull: { movies: { $in: moviesIds } } },
+                { new: true }
+            );
         }
-    }
-    console.log(error);
-    throw error;
+        if(!theatre){
+            return {
+                err: "No theatre found for the given id",
+                code: 404
+            };
+        }
+        return theatre.populate('movies');
+
+    } catch(error){
+        console.log(error);
+        throw error;
     }
 }
 
