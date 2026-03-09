@@ -1,6 +1,6 @@
 const Theatre = require ('../models/theatre.model')
 const Movie = require('../models/movie.model');
-const { response } = require('express');
+const { STATUS } = require('../utils/constants');
 
 /**
  * 
@@ -19,11 +19,10 @@ const createTheatre = async (data) => {
             Object.keys(error.errors).forEach((key) => {
                 err[key] = error.errors[key].message;
             });
-            console.log(err);
-            return {err: err, code: 422};
-        } else {
-            throw error;
+            throw {err: err, code: STATUS.UNPROCESSABLE_ENTITY};
         }
+        console.log(err);
+        throw error;
     }    
 }
 
