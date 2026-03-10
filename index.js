@@ -12,7 +12,7 @@ const app= express();
 app.use(express.urlencoded({extended:true}));
 app.use(express.json());
 
-mongoose.set('debug', true);    
+// mongoose.set('debug', true);    
 
 movieRoutes(app);
 theatreRoutes(app);
