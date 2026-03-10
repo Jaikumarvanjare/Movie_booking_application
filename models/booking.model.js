@@ -8,34 +8,28 @@ const bookingSchema = new mongoose.Schema(
         required: true,
         ref: 'Theatre'
     },
-
     movieId: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
         ref: 'Movie'
     },
-
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
         ref: 'User'
     },
-
     timing: {
         type: String,
         required: true
     },
-
     noOfSeats: {
         type: Number,
         required: true
     },
-
     totalCost: {
         type: Number,
         required: true
     },
-
     status: {
         type: String,
         required: true,
@@ -49,7 +43,6 @@ const bookingSchema = new mongoose.Schema(
         },
         default: BOOKING_STATUS.processing
     }
-
 }, { timestamps: true });
 
 const Booking = mongoose.model('Booking', bookingSchema);
