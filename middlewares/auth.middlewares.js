@@ -117,8 +117,6 @@ const isAdmin = async (req,res,next) => {
 const isClient = async(req,res,next) =>{
     const user = await userService.getUserById(req.user);
     if(user.userRole != USER_ROLE.client){
-        errorResponseBody.err = 'User is not an client, cannot proceed with the request';
-    return res.status(401).json(errorResponseBody);
         errorResponseBody.errr = 'User is not an client, cannot proceed with the request';
     return res.status(STATUS.UNAUTHORISED).json(errorResponseBody);
     }

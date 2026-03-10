@@ -1,5 +1,5 @@
 const authController = require('../controllers/auth.controller');
-const authMiddleware = require('../middlewares/auth.middleware');
+const authMiddleware = require('../middlewares/auth.middlewares');
 
 const routes = (app) =>{
     app.post(
