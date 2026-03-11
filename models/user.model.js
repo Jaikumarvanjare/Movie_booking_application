@@ -20,9 +20,10 @@ const userSchema =new mongoose.Schema({
         required : true, 
         minLength : 6
     },
-    userType : {
+    userRole : {
         type : String,
         required : true,
+        uppercase : true,
         enum : {
             values: [USER_ROLE.customer, USER_ROLE.admin, USER_ROLE.client],
             message : "Invalid user role given"
@@ -32,13 +33,14 @@ const userSchema =new mongoose.Schema({
     userStatus : {
         type : String, 
         required : true,  
+        uppercase : true,
         enum : {
             values : [USER_STATUS.approved, USER_STATUS.pending, USER_STATUS.rejected],
             message : "invalid user status given"
         },
         default : USER_STATUS.approved
     }
-}, { timestamps : true});
+}, { timestamps : true, strict : "throw"});
 
 userSchema.pre('save', async function () {  
     if (!this.isModified('password')) return;
