@@ -78,9 +78,9 @@ const deleteShow = async (id) => {
     }
 }
 
-const updateShow = async (req, res) => {
+const updateShow = async (data,showId) => {
     try{
-        const response = await Show.findByIdAndUpdate(id , data, {
+        const response = await Show.findByIdAndUpdate( showId,data, {
             new :true, 
             runValidators: true
         });
@@ -94,8 +94,8 @@ const updateShow = async (req, res) => {
     } catch (error) {
         if(error.name =='ValidationError'){
             let err = {};
-            Objects.keys(error.error).forEach(key =>{
-                err[key] = errors[key].message;
+            Object.keys(error.errors).forEach(key =>{
+                err[key] = error.errors[key].message;
             });
             throw {
                 err,
