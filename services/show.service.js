@@ -62,7 +62,52 @@ const getShows = async (data) =>{
     }
 }
 
+
+const deleteShow = async (id) => {
+    try {
+        const response = await Show.findByIdAndDelete(id);
+        if(!response) {
+            throw {
+                err: 'No show found',
+                code: STATUS.NOT_FOUND
+            }
+        }
+        return response;
+    } catch (error) {
+        throw error;
+    }
+}
+
+const updateShow = async (req, res) => {
+    try{
+        const response = await Show.findByIdAndUpdate(id , data, {
+            new :true, 
+            runValidators: true
+        });
+        if(!response){
+            throw {
+                err : "No show found for the given id",
+                code : STATUS.NOT_FOUND
+            }
+        }
+        return response;
+    } catch (error) {
+        if(error.name =='ValidationError'){
+            let err = {};
+            Objects.keys(error.error).forEach(key =>{
+                err[key] = errors[key].message;
+            });
+            throw {
+                err,
+                code : STATUS.UNPROCESSABLE_ENTITY
+            }
+        }
+        throw error;
+    }
+}
 module.exports = {
     createShow,
-    getShows
+    getShows,
+    deleteShow,
+    updateShow
 }
