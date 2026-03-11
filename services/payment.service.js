@@ -1,52 +1,65 @@
-const User = require('../models/user.model');
-const Booking = require('../models/booking.model');
 const Payment = require('../models/payment.model');
+const Booking = require('../models/booking.model');
+const Show = require('../models/show.model');
+const User = require('../models/user.model');
 const { STATUS, BOOKING_STATUS, PAYMENT_STATUS, USER_ROLE } = require('../utils/constants');
 
 const createPayment = async (data) => {
     try {
         const booking = await Booking.findById(data.bookingId);
-        if(!booking){
+        if(!booking) {
             throw {
                 err: 'No booking found',
                 code: STATUS.NOT_FOUND
             }
         }
-        // prevent duplicate payment
-        if(booking.status === BOOKING_STATUS.successfull){
+        const show = await Show.findOne({
+            movieId: booking.movieId,
+            theatreId: booking.theatreId,
+            timing: booking.timing
+        });
+        if(!show){
+            throw {
+                err: "No show found for this booking",
+                code: STATUS.NOT_FOUND
+            }
+        }
+        if(booking.status == BOOKING_STATUS.successfull) {
             throw {
                 err: 'Booking already done, cannot make a new payment against it',
                 code: STATUS.FORBIDDEN
             }
         }
-        // check expiry
-        const minutes = (Date.now() - booking.createdAt) / 60000;
-        if(minutes > 5){
+        let bookingTime = booking.createdAt;
+        let currentTime = Date.now();
+        // calculate how many minutes are remaining
+        let minutes = Math.floor(((currentTime - bookingTime) / 1000) / 60);
+        if(minutes > 5) {
             booking.status = BOOKING_STATUS.expired;
             await booking.save();
             return booking;
         }
-        // create payment
         const payment = await Payment.create({
             bookingId: data.bookingId,
             amount: data.amount
         });
-        // amount mismatch
-        if(payment.amount !== booking.totalCost){
+        if(payment.amount != booking.totalCost) {
             payment.status = PAYMENT_STATUS.failed;
+        }
+        if(payment.status == PAYMENT_STATUS.failed) {
             booking.status = BOOKING_STATUS.cancelled;
-            await payment.save();
             await booking.save();
-
+            await payment.save();
             return booking;
         }
-        // success case
         payment.status = PAYMENT_STATUS.success;
         booking.status = BOOKING_STATUS.successfull;
-        await payment.save();
+        show.noOfSeats -= booking.noOfSeats;
+        await show.save();
         await booking.save();
-        return payment;
-    } catch(error){
+        await payment.save();
+        return booking;
+    } catch (error) {
         console.log(error);
         throw error;
     }
@@ -54,15 +67,15 @@ const createPayment = async (data) => {
 
 const getPaymentById = async (id) => {
     try {
-        const response = await Payment.findById(id).populate('booking');
-        if(!response){
+        const response = await Payment.findById(id).populate('bookingId');
+        if(!response) {
             throw {
                 err: 'No payment record found',
                 code: STATUS.NOT_FOUND
             }
         }
         return response;
-    } catch(error){
+    } catch (error) {
         console.log(error);
         throw error;
     }
@@ -72,7 +85,7 @@ const getAllPayments = async (userId) => {
     try {
         const user = await User.findById(userId);
         let filter = {};
-        if(user.userRole !== USER_ROLE.admin){
+        if(user.userRole != USER_ROLE.admin) {
             filter.userId = user._id;
         }
         const bookings = await Booking.find(filter, '_id');
@@ -81,7 +94,7 @@ const getAllPayments = async (userId) => {
             bookingId: { $in: bookingIds }
         });
         return payments;
-    } catch(error){
+    } catch (error) {
         throw error;
     }
 }
