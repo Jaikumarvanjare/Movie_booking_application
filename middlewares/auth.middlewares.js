@@ -107,7 +107,7 @@ const validateResetPasswordRequest = async (req, res, next) =>{
 const isAdmin = async (req,res,next) => {
     console.log(req.user);
     const user =await userService.getUserById(req.user);
-    if(user.userType != USER_ROLE.admin){
+    if(user.userRole != USER_ROLE.admin){
         errorResponseBody.err = 'User is not an admin, cannot proceed with the request';
         return res.status(STATUS.UNAUTHORISED).json(errorResponseBody);
     }

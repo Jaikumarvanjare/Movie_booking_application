@@ -7,6 +7,7 @@ const theatreRoutes = require('./routes/theatre.routes');
 const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
 const bookingRoutes = require('./routes/booking.routes');
+const showRoutes = require('./routes/show.routes');
 
 const app= express();
 app.use(express.urlencoded({extended:true}));
@@ -19,6 +20,7 @@ theatreRoutes(app);
 authRoutes(app);
 userRoutes(app);
 bookingRoutes(app);
+showRoutes(app);
 
 const startServer = async () => {
     try {
