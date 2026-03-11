@@ -8,6 +8,7 @@ const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
 const bookingRoutes = require('./routes/booking.routes');
 const showRoutes = require('./routes/show.routes');
+const paymentRoutes = require('./routes/payment.routes');
 
 const app= express();
 app.use(express.urlencoded({extended:true}));
@@ -21,6 +22,7 @@ authRoutes(app);
 userRoutes(app);
 bookingRoutes(app);
 showRoutes(app);
+paymentRoutes(app); 
 
 const startServer = async () => {
     try {

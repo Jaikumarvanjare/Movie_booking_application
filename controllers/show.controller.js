@@ -51,7 +51,7 @@ const destroy = async (req, res) => {
 
 const update = async (req, res) => {
     try {
-        const response = await showService.updateShow(req.params.id, req.body);
+        const response = await showService.updateShow(req.body, req.params.id);
         successResponseBody.message = " Successfully updated the show";
         successResponseBody.data = response;
         return res.status(STATUS.OK).json(successResponseBody);
@@ -60,6 +60,7 @@ const update = async (req, res) => {
             errorResponseBody.err = error.err;
             return res.status(error.code).json(errorResponseBody);
         }
+        console.log(error);
         errorResponseBody.err = error;
         return res.status(STATUS.INTERNAL_SERVER_ERROR).json(errorResponseBody)
     }
