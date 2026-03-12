@@ -24,11 +24,13 @@ const bookingSchema = new mongoose.Schema(
     },
     noOfSeats: {
         type: Number,
-        required: true
+        required: true, 
+        min : 1
     },
     totalCost: {
         type: Number,
-        required: true
+        required: true, 
+        min : 0
     },
     status: {
         type: String,

@@ -13,7 +13,7 @@ const paymentSchema = new mongoose.Schema({
     }, 
     status : {
         type :String,
-        Required : true,
+        required : true,
         enum : {
             values : [PAYMENT_STATUS.pending, PAYMENT_STATUS.failed, PAYMENT_STATUS.success],
             message : 'Invalid payment status'
