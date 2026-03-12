@@ -1,6 +1,6 @@
 const theatreController = require('../controllers/theatre.controller');
-const theatreMiddleware = require('../middlewares/theatre.middleware');
-const authMiddleware = require('../middlewares/auth.middleware');
+const theatreMiddleware = require('../middlewares/theatre.middlewares');
+const authMiddleware = require('../middlewares/auth.middlewares');
 
 const routes = (app) =>{
      //routes function takes express app object as parameter

@@ -3,34 +3,25 @@ const { USER_ROLE, USER_STATUS, STATUS} = require('../utils/constants');
 
 const createUser = async (data) =>{
     try {
-        if(!data.userType || data.userType == USER_ROLE.customer){
-            if(data.userStatus && data.userStatus!= USER_STATUS.approved){
-                throw {
-                    err :"we canot set the any other type for this user", 
-                    code : 400
-                };
-            }
-        }
-        if(data.userType && data.userType != USER_ROLE.customer){
+        if(!data.userRole || data.userRole === USER_ROLE.customer){
+            data.userRole = USER_ROLE.customer;
+            data.userStatus = USER_STATUS.approved;
+        } else {
             data.userStatus = USER_STATUS.pending;
         }
-
-        const response = await  User.create(data);
-        console.log(response);
+        const response = await User.create(data);
         return response;
     } catch(error){
-        console.log(error);
-        if(error.name =='ValidationError'){
+        if(error.name === 'ValidationError'){
             let err = {};
-            Object.keys(error.errors).forEach((key) => {
+            Object.keys(error.errors).forEach(key => {
                 err[key] = error.errors[key].message;
             });
-            throw {err : err, code : 422};
+            throw {err : err, code : STATUS.UNPROCESSABLE_ENTITY};
         }
         throw error;
     }
 }
-
 const getUserByEmail = async (email) => {
     try {
         const response =await User.findOne({
