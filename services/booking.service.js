@@ -5,18 +5,28 @@ const { STATUS } = require('../utils/constants');
 const createBooking = async (data) => {
     try {
         const show = await Show.findOne({
-            movieId: data.movieId, 
-            theatreId: data.theatreId, 
+            movieId: data.movieId,
+            theatreId: data.theatreId,
             timing: data.timing
         });
-        console.log(show.price, data.noOfSeats);
-        data.totalCost = data.noOfSeats*show.price;
+        if(!show){
+            throw {
+                err: "No show found for given movie, theatre and timing",
+                code: STATUS.NOT_FOUND
+            }
+        }
+        if(show.noOfSeats < data.noOfSeats){
+            throw {
+                err: "Not enough seats available",
+                code: STATUS.BAD_REQUEST
+            }
+        }
+        data.totalCost = data.noOfSeats * show.price;
         const response = await Booking.create(data);
-        await show.save();
         return response;
     } catch (error) {
         console.log(error);
-        if(error.name == 'ValidationError') {
+        if(error.name == 'ValidationError'){
             let err = {};
             Object.keys(error.errors).forEach(key => {
                 err[key] = error.errors[key].message;
@@ -29,18 +39,20 @@ const createBooking = async (data) => {
 
 const updateBooking = async (data, bookingId) => {
     try {
-        const response = await Booking.findByIdAndUpdate(bookingId, data, {
-            new: true, runValidators: true
-        });
-        if(!response) {
+        const response = await Booking.findByIdAndUpdate(
+            bookingId,
+            data,
+            { new: true, runValidators: true }
+        );
+        if(!response){
             throw {
                 err: "No booking found for the given id",
                 code: STATUS.NOT_FOUND
             }
         }
         return response;
-    } catch (error) {
-        if(error.name == 'ValidationError') {
+    } catch (error){
+        if(error.name == 'ValidationError'){
             let err = {};
             Object.keys(error.errors).forEach(key => {
                 err[key] = error.errors[key].message;
