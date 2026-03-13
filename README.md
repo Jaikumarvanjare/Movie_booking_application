@@ -1,10 +1,24 @@
-# 🎬 Movie Booking Application (Full Stack)
+# 🎬 Movie Booking Application
 
-This project is a **full-stack movie booking system** that allows users to browse movies, view theatres, and book tickets.
+A backend system that allows users to browse movies, view theatres, book tickets, and complete payments.
+The system is built using **Node.js, Express, MongoDB**, and follows a clean **layered backend architecture**.
 
-Currently, the **backend API is fully implemented**, and the **frontend interface will be developed next** to interact with these APIs.
+This project also integrates a **Notification Microservice** that sends booking confirmation emails asynchronously.
 
-The system is designed using **Node.js, Express, MongoDB, and JWT authentication**, following a clean backend architecture.
+---
+
+# 🚀 Project Overview
+
+The Movie Booking Application provides APIs for managing:
+
+* Users
+* Movies
+* Theatres
+* Shows
+* Bookings
+* Payments
+
+After a successful payment, the system sends a request to the **Notification Service**, which sends a confirmation email to the user.
 
 ---
 
@@ -17,48 +31,24 @@ The system is designed using **Node.js, Express, MongoDB, and JWT authentication
 * MongoDB
 * Mongoose
 * JWT Authentication
-* bcrypt (password hashing)
+* bcrypt
+* Axios (service communication)
 
-## Frontend (Planned)
+## Microservices
 
-* React.js
-* Axios
-* React Router
-* TailwindCSS / CSS
+Notification system implemented as a **separate service**.
 
----
+Notification Service Repository:
 
-# 📁 Project Structure
-
-```
-project-root
-│
-├── controllers
-│
-├── services
-│
-├── models
-│
-├── middlewares
-│
-├── routes
-│
-├── utils
-│
-├── config
-│
-└── server.js
-```
-
-Each layer has a specific responsibility.
+https://github.com/Jaikumarvanjare/NotificationService
 
 ---
 
 # 🧠 Backend Architecture
 
-The backend follows a **layered architecture** to maintain clean separation of concerns.
+The backend follows a **layered architecture**.
 
-```
+```text
 Client
    │
    ▼
@@ -90,25 +80,25 @@ Handles validation, authentication, and authorization.
 
 ### Controllers
 
-Handle request and response objects.
+Handle HTTP requests and responses.
 
 ### Services
 
-Contain business logic and interact with the database.
+Contain the main business logic.
 
 ### Models
 
-Define database schemas using Mongoose.
+Define MongoDB schemas.
 
 ---
 
 # 🔐 Authentication System
 
-Authentication is implemented using **JWT tokens**.
+Authentication uses **JWT tokens**.
 
 ### Signup Flow
 
-```
+```text
 Client → Signup Request
         ↓
 Validation Middleware
@@ -121,25 +111,19 @@ User Model
         ↓
 Password hashed using bcrypt
         ↓
-User saved in database
+User stored in MongoDB
 ```
-
----
 
 ### Signin Flow
 
-```
+```text
 Client → Login Request
         ↓
-Validate email and password
-        ↓
-Fetch user from database
-        ↓
-Compare password using bcrypt
+Verify credentials
         ↓
 Generate JWT token
         ↓
-Return token to client
+Return token
 ```
 
 Token example:
@@ -152,7 +136,9 @@ Authorization: Bearer <JWT_TOKEN>
 
 # 👤 User Roles
 
-The system supports role-based access control.
+Role-based access control is implemented.
+
+Roles supported:
 
 ```
 CUSTOMER
@@ -160,39 +146,42 @@ ADMIN
 CLIENT
 ```
 
-Authorization middleware ensures that certain APIs are accessible only to specific roles.
+Example permissions:
 
-Example:
+Admin:
 
-* Admin → manage movies and theatres
-* Customer → browse and book tickets
+* Create movies
+* Manage theatres
+* Manage shows
+
+Customer:
+
+* Browse movies
+* Book tickets
+* Make payments
 
 ---
 
 # 🎥 Movie Module
 
-Movies can be created, updated, deleted, and fetched.
+Handles movie management.
 
-Movie schema includes:
+Features:
 
-* name
-* description
-* casts
-* trailerUrl
-* language
-* releaseDate
-* director
-* releaseStatus
+* Create movie
+* Update movie
+* Delete movie
+* Fetch movie list
 
-Example movie document:
+Movie schema example:
 
-```
+```json
 {
-  name: "Avengers",
-  description: "Marvel superhero movie",
-  casts: ["Robert Downey Jr"],
-  releaseDate: "2019",
-  director: "Russo Brothers"
+  "name": "Avengers",
+  "description": "Marvel superhero movie",
+  "casts": ["Robert Downey Jr"],
+  "releaseDate": "2019",
+  "director": "Russo Brothers"
 }
 ```
 
@@ -200,26 +189,27 @@ Example movie document:
 
 # 🎭 Theatre Module
 
-Theatre schema includes:
+Stores theatre information.
 
-* name
+Fields include:
+
+* theatre name
 * city
 * pincode
 * address
-* movies (array of movie IDs)
+* available movies
 
 Example:
 
-```
+```json
 {
-  name: "PVR Cinemas",
-  city: "Delhi",
-  pincode: 110001,
-  movies: [movieId1, movieId2]
+  "name": "PVR Cinemas",
+  "city": "Delhi",
+  "pincode": 110001
 }
 ```
 
-Movies can be added or removed using MongoDB operators.
+Movies can be attached to theatres using MongoDB operators.
 
 ```
 $addToSet
@@ -228,23 +218,100 @@ $pull
 
 ---
 
-# 🔎 Filtering and Pagination
+# 🎬 Show Module
 
-Theatres can be filtered using query parameters.
+Represents movie show timings.
 
-Example:
-
-```
-GET /theatres?city=Delhi
-GET /theatres?pincode=110001
-GET /theatres?movieId=abc123
-```
-
-Pagination example:
+Each show connects:
 
 ```
-GET /theatres?limit=5&skip=1
+Movie
+Theatre
+Timing
+Seat configuration
 ```
+
+Shows help determine seat availability and pricing.
+
+---
+
+# 🎟 Booking Module
+
+Handles ticket booking.
+
+Booking includes:
+
+* movieId
+* theatreId
+* timing
+* seat selection
+* number of seats
+* total cost
+* booking status
+
+Example booking:
+
+```json
+{
+  "movieId": "6996c60706c06f11bc76d95b",
+  "theatreId": "699850ff8cb91b62e4233133",
+  "timing": "23:30",
+  "noOfSeats": 3,
+  "totalCost": 909,
+  "status": "SUCCESSFULL"
+}
+```
+
+---
+
+# 💳 Payment Module
+
+Handles payment processing.
+
+Features:
+
+* Create payment
+* Validate payment amount
+* Update booking status
+* Reduce theatre seat availability
+
+Payment success triggers a **notification email**.
+
+---
+
+# 📧 Notification Service Integration
+
+After successful payment, the Movie Booking service calls the Notification Service.
+
+```text
+Payment Success
+      │
+      ▼
+Call Notification API
+      │
+      ▼
+Notification Service
+      │
+      ▼
+Queue (BullMQ)
+      │
+      ▼
+Worker
+      │
+      ▼
+Email Sent
+```
+
+Notification Service Repo:
+
+https://github.com/Jaikumarvanjare/NotificationService
+
+This service handles:
+
+* asynchronous email sending
+* retry logic
+* background workers
+* queue monitoring
 
 ---
 
@@ -284,57 +351,44 @@ DELETE /mba/api/v1/theatres/:id
 
 ---
 
-## Theatre Movies
+## Bookings
 
 ```
-PATCH /mba/api/v1/theatres/:id/movies
-GET   /mba/api/v1/theatres/:id/movies
-GET   /mba/api/v1/theatres/:theatreId/movies/:movieId
+POST   /mba/api/v1/bookings
+GET    /mba/api/v1/bookings
+GET    /mba/api/v1/bookings/:id
 ```
 
 ---
 
-# 💻 Frontend (Upcoming)
+## Payments
 
-The frontend will be built using **React.js** and will interact with the backend APIs.
-
-Planned features:
-
-* User authentication UI
-* Browse movies
-* Browse theatres
-* Movie details page
-* Booking interface
-* Admin dashboard
-* Seat selection system
-
-Frontend will communicate with backend APIs using **Axios**.
+```
+POST   /mba/api/v1/payments
+GET    /mba/api/v1/payments/:id
+GET    /mba/api/v1/payments
+```
 
 ---
 
 # 🚀 Running the Backend
 
-### Install dependencies
+Install dependencies:
 
 ```
 npm install
 ```
 
----
-
-### Setup environment variables
-
 Create `.env`
 
 ```
 PORT=3000
-MONGO_URI=your_mongodb_connection
+DB_URL=your_mongodb_connection
 AUTH_KEY=your_secret_key
+NOTI_SERVICE=http://localhost:3001
 ```
 
----
-
-### Start server
+Start server:
 
 ```
 npm start
@@ -350,37 +404,38 @@ http://localhost:3000
 
 # 📌 Current Features
 
-✔ User signup
-✔ User login
-✔ JWT authentication
-✔ Role-based authorization
+✔ User authentication
+✔ JWT authorization
 ✔ Movie CRUD APIs
 ✔ Theatre CRUD APIs
-✔ Assign movies to theatres
-✔ Filtering and pagination
+✔ Show management
+✔ Seat management
+✔ Booking system
+✔ Payment system
+✔ Email notifications after successful booking
 
 ---
 
 # 🔮 Future Improvements
 
-Planned backend features:
+Planned improvements:
 
-* Show model (movie show timings)
-* Seat management
-* Booking system
-* Payment integration
-* Logging system
-* Centralized error handling
+* Frontend using React
+* Seat selection UI
+* Payment gateway integration
+* Admin dashboard
+* Analytics dashboard
 
 ---
 
-# 📚 Learning Goals
+# 📚 Learning Outcomes
 
-This project helped in learning:
+This project demonstrates understanding of:
 
 * REST API design
 * Backend architecture
 * Authentication and authorization
 * MongoDB schema design
-* Middleware usage
-* Full-stack development
+* Microservice integration
+* Asynchronous processing
+* Queue-based systems
