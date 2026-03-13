@@ -45,6 +45,9 @@ const bookingSchema = new mongoose.Schema(
             message: "Invalid booking status"
         },
         default: BOOKING_STATUS.processing
+    },
+    seat: {
+        type: String,
     }
 }, { timestamps: true });
 

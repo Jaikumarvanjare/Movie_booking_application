@@ -76,6 +76,10 @@ const movieSchema = new mongoose.Schema({
         uppercase: true,
         trim: true,
         default: "UPCOMING"
+    },
+    poster: {
+        type: String,
+        required: true,
     }
 
 }, { timestamps: true });

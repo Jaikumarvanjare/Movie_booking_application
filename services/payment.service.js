@@ -8,57 +8,42 @@ const { STATUS, BOOKING_STATUS, PAYMENT_STATUS, USER_ROLE } = require('../utils/
 const createPayment = async (data) => {
     try {
         const booking = await Booking.findById(data.bookingId);
-        if(!booking){
+        const show = await Show.findOne({
+            movieId: booking.movieId,
+            theatreId: booking.theatreId,
+            showId: data.showId
+        });
+        if(booking.status == BOOKING_STATUS.successfull) {
+            throw {
+                err: 'Booking already done, cannot make a new payment against it',
+                code: STATUS.FORBIDDEN
+            }
+        }
+        if(!booking) {
             throw {
                 err: 'No booking found',
                 code: STATUS.NOT_FOUND
             }
         }
-        if(booking.status !== BOOKING_STATUS.processing){
-            throw {
-                err: "Booking already processed",
-                code: STATUS.BAD_REQUEST
-            }
-        }
-        const existingPayment = await Payment.findOne({
-            booking: data.bookingId,
-            status: PAYMENT_STATUS.success
-        });
-        if(existingPayment){
-            throw {
-                err: "Payment already completed",
-                code: STATUS.BAD_REQUEST
-            }
-        }
-        const show = await Show.findOne({
-            movieId: booking.movieId,
-            theatreId: booking.theatreId,
-            timing: booking.timing
-        });
-        if(!show){
-            throw {
-                err: "No show found",
-                code: STATUS.NOT_FOUND
-            }
-        }
-        if(show.noOfSeats < booking.noOfSeats){
-            throw {
-                err: "Not enough seats available",
-                code: STATUS.BAD_REQUEST
-            }
-        }
-        let minutes = Math.floor((Date.now() - booking.createdAt) / 60000);
-        if(minutes > 5){
+        let bookingTime = booking.createdAt;
+        let currentTime = Date.now();
+
+        // calculate how many minutes are remaining
+        let minutes = Math.floor(((currentTime - bookingTime) / 1000) / 60);
+        if(minutes > 5) {
             booking.status = BOOKING_STATUS.expired;
             await booking.save();
             return booking;
         }
+
         const payment = await Payment.create({
             booking: data.bookingId,
             amount: data.amount
         });
-        if(payment.amount !== booking.totalCost){
+        if(payment.amount != booking.totalCost) {
             payment.status = PAYMENT_STATUS.failed;
+        }
+        if(!payment || payment.status == PAYMENT_STATUS.failed) {
             booking.status = BOOKING_STATUS.cancelled;
             await booking.save();
             await payment.save();
@@ -66,13 +51,38 @@ const createPayment = async (data) => {
         }
         payment.status = PAYMENT_STATUS.success;
         booking.status = BOOKING_STATUS.successfull;
+        console.log(show, booking)
         show.noOfSeats -= booking.noOfSeats;
+
+        if(show.seatConfiguration) {
+            const showSeatConfig = JSON.parse(show.seatConfiguration.replaceAll("'", '"'));
+            const bookedSeats = JSON.parse(booking.seat.replaceAll("'", '"'));
+            const bookedSeatsMap = {};
+            bookedSeats.forEach((seats) => {
+                if(!bookedSeatsMap[seats.rowNumber]) {
+                    bookedSeatsMap[seats.rowNumber] = new Set();
+                }
+                bookedSeatsMap[seats.rowNumber].add(seats.seatNumber);
+            });
+            showSeatConfig.rows.forEach((row) => {
+                if(bookedSeatsMap[row.number]) {
+                    row.seats = row.seats.map((seat) => {
+                        if(bookedSeatsMap[row.number].has(seat.number)) {
+                            seat.status = 2;
+                        }
+                        return seat;
+                    })
+                }
+            });
+            show.seatConfiguration = JSON.stringify(showSeatConfig).replaceAll('"', "'");
+        }
+
         await show.save();
         await booking.save();
         await payment.save();
         return booking;
-    } catch(error){
-        console.log(error);
+    } catch (error) {
+        console.log(error.message);
         throw error;
     }
 }
@@ -100,11 +110,9 @@ const getAllPayments = async (userId) => {
         if(user.userRole != USER_ROLE.admin) {
             filter.userId = user.id;
         }
-        const bookings = await Booking.find(filter, '_id');
-        const bookingIds = bookings.map(b => b._id);
-        const payments = await Payment.find({
-            booking: { $in: bookingIds }
-        });
+        const bookings = await Booking.find(filter, 'id');
+
+        const payments = await Payment.find({booking: {$in: bookings}});
         return payments;
     } catch (error) {
         throw error;

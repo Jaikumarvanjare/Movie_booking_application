@@ -24,17 +24,11 @@ const create = async (req, res) => {
         const theatre = await Theatre.findById(response.theatreId);
         successResponseBody.data = response;
         successResponseBody.message = 'Booking completed successfully';
-        if(user && movie && theatre){
-            try {
-                await sendMail(
-                    'Your booking is Successfull', 
-                    response.userId,
-                    `Your booking for ${movie.name} in ${theatre.name} for ${response.noOfSeats} seats on ${response.timing} is successfull. Your booking id is ${response.id}`
-                );
-            } catch(e){
-                console.log("Email sending failed but payment succeeded");
-            }
-        }
+        // sendMail(
+        //     'Your booking is Successfull', 
+        //     response.userId,
+        //     `Your booking for ${movie.name} in ${theatre.name} for ${response.noOfSeats} seats on ${response.timing} is successfull. Your booking id is ${response.id}`
+        // );
         return res.status(STATUS.OK).json(successResponseBody);
     } catch(error){
         if(error.err){
