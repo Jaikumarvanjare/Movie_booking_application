@@ -2,6 +2,7 @@ const Payment = require('../models/payment.model');
 const Booking = require('../models/booking.model');
 const Show = require('../models/show.model');
 const User = require('../models/user.model');
+const sendMail = require('../services/email.service');
 
 const { STATUS, BOOKING_STATUS, PAYMENT_STATUS, USER_ROLE } = require('../utils/constants');
 
@@ -80,6 +81,13 @@ const createPayment = async (data) => {
         await show.save();
         await booking.save();
         await payment.save();
+
+        await sendMail(
+            "Movie Booking Confirmed",
+            booking.userId,
+            `Your booking has been confirmed. Seats booked: ${booking.noOfSeats}`
+        );
+
         return booking;
     } catch (error) {
         console.log(error.message);
