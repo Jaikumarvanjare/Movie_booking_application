@@ -1,20 +1,16 @@
-const movieController =require('../controllers/movie.controller');
+const movieController = require('../controllers/movie.controller');
 const movieMiddlewares = require('../middlewares/movie.middlewares');
 const authMiddlewares = require('../middlewares/auth.middlewares');
 
-const routes = (app) =>{
-    //routes function takes express app object as parameter
-
-    //CREATE
+const routes = (app) => {
     app.post(
         '/mba/api/v1/movies',
         authMiddlewares.isAuthenticated,
         authMiddlewares.isAdminOrClient,
-        movieMiddlewares.validateMovieCreateRequest, 
+        movieMiddlewares.validateMovieCreateRequest,
         movieController.createMovie
     );
 
-    //DELETE
     app.delete(
         '/mba/api/v1/movies/:id',
         authMiddlewares.isAuthenticated,
@@ -22,13 +18,11 @@ const routes = (app) =>{
         movieController.deleteMovie
     );
 
-    //READ
     app.get(
         '/mba/api/v1/movies/:id',
         movieController.getMovie
     );
 
-    //UPDATE
     app.put(
         '/mba/api/v1/movies/:id',
         authMiddlewares.isAuthenticated,
@@ -36,19 +30,17 @@ const routes = (app) =>{
         movieController.updateMovie
     );
 
-    //UPDATE
     app.patch(
-        '/mba/api/v1/movies/:id', 
+        '/mba/api/v1/movies/:id',
         authMiddlewares.isAuthenticated,
         authMiddlewares.isAdminOrClient,
         movieController.updateMovie
     );
 
-    //READ
     app.get(
         '/mba/api/v1/movies',
         movieController.getMovies
-    )
-};    
+    );
+};
 
 module.exports = routes;

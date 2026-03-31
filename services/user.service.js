@@ -1,84 +1,129 @@
-const User = require('../models/user.model');
-const { USER_ROLE, USER_STATUS, STATUS} = require('../utils/constants');
+const prisma = require('../utils/prismaClient');
+const bcrypt = require('bcrypt');
+const { USER_ROLE, USER_STATUS, STATUS } = require('../utils/constants');
 
-const createUser = async (data) =>{
+const createUser = async (data) => {
     try {
-        if(!data.userRole || data.userRole === USER_ROLE.customer){
+        if (!data.userRole || data.userRole === USER_ROLE.customer) {
             data.userRole = USER_ROLE.customer;
             data.userStatus = USER_STATUS.approved;
         } else {
             data.userStatus = USER_STATUS.pending;
         }
-        const response = await User.create(data);
-        return response;
-    } catch(error){
-        if(error.name === 'ValidationError'){
-            let err = {};
-            Object.keys(error.errors).forEach(key => {
-                err[key] = error.errors[key].message;
-            });
-            throw {err : err, code : STATUS.UNPROCESSABLE_ENTITY};
+
+        const existingEmail = await prisma.user.findUnique({
+            where: { email: data.email.toLowerCase() }
+        });
+
+        if (existingEmail) {
+            throw { err: 'User already exists with the given email', code: STATUS.BAD_REQUEST };
         }
+
+        const existingName = await prisma.user.findUnique({
+            where: { name: data.name }
+        });
+
+        if (existingName) {
+            throw { err: 'User already exists with the given name', code: STATUS.BAD_REQUEST };
+        }
+
+        const hashedPassword = await bcrypt.hash(data.password, 10);
+
+        const response = await prisma.user.create({
+            data: {
+                name: data.name,
+                email: data.email.toLowerCase().trim(),
+                password: hashedPassword,
+                userRole: data.userRole,
+                userStatus: data.userStatus
+            }
+        });
+
+        return response;
+    } catch (error) {
         throw error;
     }
-}
+};
+
 const getUserByEmail = async (email) => {
     try {
-        const response =await User.findOne({
-            email: email
+        const response = await prisma.user.findUnique({
+            where: {
+                email: email.toLowerCase()
+            }
         });
-        if(!response){
-            throw {err : 'No user found for the given email', code :404};
+
+        if (!response) {
+            throw { err: 'No user found for the given email', code: STATUS.NOT_FOUND };
         }
         return response;
-    }catch (error){
-        console.log(error);
+    } catch (error) {
         throw error;
     }
-}
+};
 
-const getUserById = async(id) => {
-    try{
-        const user = await User.findById(id);
-        if(!user){
-            throw {err : "No user found for the given id", code : 404};
+const getUserById = async (id) => {
+    try {
+        const user = await prisma.user.findUnique({
+            where: { id }
+        });
+
+        if (!user) {
+            throw { err: "No user found for the given id", code: STATUS.NOT_FOUND };
         }
         return user;
-    }catch(error){
-        console.log(error);    
-    throw error;
+    } catch (error) {
+        throw error;
     }
-}
+};
 
 const updateUserRoleOrStatus = async (data, userId) => {
     try {
         let updateQuery = {};
 
-        if(data.userRole) updateQuery.userRole = data.userRole;
-        if(data.userStatus) updateQuery.userStatus = data.userStatus;
+        if (data.userRole) updateQuery.userRole = data.userRole;
+        if (data.userStatus) updateQuery.userStatus = data.userStatus;
 
-        let response = await User.findOneAndUpdate(
-            { _id: userId },
-            updateQuery,
-            { new: true, runValidators: true }
-        );        
-        if(!response) throw {err: 'No user found for the given id', code : STATUS.NOT_FOUND};
-        return response;
-    } catch (error){
-        console.log(error, error.name);
-        if(error.name == 'ValidationError'){
-            let err = {};
-            Object.keys(error.errors).forEach(key => {
-                err[key] = error.errors[key].message;
-            });
-        throw {err: err, code : STATUS.BAD_REQUEST};
+        const existingUser = await prisma.user.findUnique({
+            where: { id: userId }
+        });
+
+        if (!existingUser) {
+            throw { err: 'No user found for the given id', code: STATUS.NOT_FOUND };
         }
+
+        const response = await prisma.user.update({
+            where: { id: userId },
+            data: updateQuery
+        });
+
+        return response;
+    } catch (error) {
         throw error;
     }
-}
+};
+
+const updatePassword = async (userId, newPassword) => {
+    try {
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        const response = await prisma.user.update({
+            where: { id: userId },
+            data: {
+                password: hashedPassword
+            }
+        });
+
+        return response;
+    } catch (error) {
+        throw error;
+    }
+};
+
 module.exports = {
     createUser,
     getUserByEmail,
     getUserById,
-    updateUserRoleOrStatus
-}
+    updateUserRoleOrStatus,
+    updatePassword
+};

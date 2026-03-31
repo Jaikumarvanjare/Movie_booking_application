@@ -1,26 +1,18 @@
-/**
- * this object will be used as a template for building error response
- */
-
-const errorResponseBody = {
+const createErrorResponseBody = () => ({
     err: {},
     data: {},
     message: "Something went wrong, cannot process the request",
     success: false
-};
+});
 
-/**
- * this object will be used as a template for building success responses
- */
-
-const successResponseBody = {
+const createSuccessResponseBody = () => ({
     err: {},
     data: {},
     message: "Successfully processed the request",
     success: true
-};
+});
 
 module.exports = {
-    errorResponseBody,
-    successResponseBody
+    createErrorResponseBody,
+    createSuccessResponseBody
 };

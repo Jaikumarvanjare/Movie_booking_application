@@ -1,217 +1,229 @@
-const Theatre = require ('../models/theatre.model')
-const Movie = require('../models/movie.model');
+const prisma = require('../utils/prismaClient');
 const { STATUS } = require('../utils/constants');
 
-/**
- * 
- * @param data -> object containing details of new theatre to be created
- * @returns -> returns the new theatre created
- */
-
 const createTheatre = async (data) => {
-    try{
-        const response = await Theatre.create(data);
-        return response;
-    }
-    catch(error){
-        if(error.name == 'ValidationError') {
-            let err = {};
-            Object.keys(error.errors).forEach((key) => {
-                err[key] = error.errors[key].message;
-            });
-            throw {err: err, code: STATUS.UNPROCESSABLE_ENTITY};
-        }
-        console.log(err);
-        throw error;
-    }    
-}
-
-/**
- * 
- * @param id -> id which will be used to identify theatre to be deleted
- * @returns -> object containing details of the theatre deleted
- */
-
-const deleteTheatre = async(id) => {
     try {
-        const response = await Theatre.findByIdAndDelete(id);
-        if(!response) {
+        const response = await prisma.theatre.create({
+            data: {
+                name: data.name,
+                description: data.description,
+                city: data.city,
+                pincode: Number(data.pincode),
+                address: data.address,
+                movieIds: data.movieIds || [],
+                ownerId: data.owner
+            }
+        });
+
+        return {
+            ...response,
+            movies: response.movieIds
+        };
+    } catch (error) {
+        throw error;
+    }
+};
+
+const deleteTheatre = async (id) => {
+    try {
+        const existingTheatre = await prisma.theatre.findUnique({
+            where: { id }
+        });
+
+        if (!existingTheatre) {
             throw {
                 err: "No record of a theatre found for given id",
                 code: STATUS.NOT_FOUND
-            }
-        }
-        return response;
-    }catch(error){
-        console.log(error);
-        throw error;
-    }
-}
-
-/**
- * 
- * @param id -> unique id by which we can fetch theatre
- */
-
-const getTheatre= async (id) => {
-    try{
-        const response = await Theatre.findById(id);
-        if(!response){
-            throw {
-                err : "No theatre found for the given id",
-                code: STATUS.NOT_FOUND
-            }
-      
-        }
-        return response;
-    } catch(error) {
-        console.log(error);
-        throw error;
-    }    
-}
-
-/**
- * 
- * @param data -> the data to be used to filter out theatres based on city / pincode
- * @returns -> object containing details of the filtered theatres
- */
-
-const getAllTheatre= async (data) => {
-    try{
-        let query = {};
-        let pagination = {};
-        if(data && data.city) {
-            query.city = data.city;
-        } 
-        if(data && data.pincode) {
-            query.pincode = data.pincode;
-        }
-        if(data && data.name) {
-            query.name = data.name;
-        }
-        if(data && data.limit){
-            pagination.limit = data.limit;
-        }
-        if(data && data.movieId){
-            // let movie = await Movie.findById(data.movieId)
-            query.movies = {$all : data.movieId}
+            };
         }
 
-        if(data && data.skip){
-            let perPage = (data.limit) ? data.limit :3;
-            pagination.skip = data.skip*perPage;
-        }
-        const response = await Theatre.find(query, {}, pagination);    
-
-        return response;
-    } catch(error) {
-        console.log(error);
-        throw error;
-    }    
-}
-
-/**
- * 
- * @param id -> id which will be used to identify theatre to be updated
- * @param data -> object containing details of theatre to be updated
- * @returns -> it returns the new updated theatre object
- */
-
-const updateTheatre = async (id, data) => {
-    try {
-        const response = await Theatre.findByIdAndUpdate(id, data, {
-            new: true, runValidators: true
+        return await prisma.theatre.delete({
+            where: { id }
         });
-        if(!response) {
-            throw {
-                err: "No theatre found for the given id",
-                code: STATUS.NOT_FOUND
-            }
-        }
-        return response;
     } catch (error) {
-        if(error.name == 'ValidationError') {
-            let err = {};
-            Object.keys(error.errors).forEach((key) => {
-                err[key] = error.errors[key].message;
-            });
-            throw {err: err, code: STATUS.UNPROCESSABLE_ENTITY}
-        }
         throw error;
     }
-}
+};
 
-
-/**
- * 
- * @param theatreId -> id of the theatre for updated movies
- * @param movieId -> array of the movie  ids that are expected to be updated in theatre
- * @param insert -> boolean that tells whether insert or remove movies
- * @returns -> updated theatre object
- */
-
-const updateMoviesInTheatre = async (theatreId, moviesIds, insert) => {
+const getTheatre = async (id) => {
     try {
-        let theatre;
-        if(insert) {
-            theatre = await Theatre.findByIdAndUpdate(
-                theatreId,
-                { $addToSet: { movies: { $each: moviesIds } } },
-                { new: true }
-            );
-        } 
-        else {
-            theatre = await Theatre.findByIdAndUpdate(
-                theatreId,
-                { $pull: { movies: { $in: moviesIds } } },
-                { new: true }
-            );
-        }
-        return theatre.populate('movies');
-        
-    } catch(error){
-        if(error.name == 'TypeError'){
+        const response = await prisma.theatre.findUnique({
+            where: { id }
+        });
+
+        if (!response) {
             throw {
                 err: "No theatre found for the given id",
                 code: STATUS.NOT_FOUND
             };
         }
-        console.log(error);
+
+        return {
+            ...response,
+            movies: response.movieIds
+        };
+    } catch (error) {
         throw error;
     }
-}
+};
 
-const getMoviesInTheatre = async (id) => {   
-    try{
-        const theatre = await Theatre.findById(id, {name:1, movies:1, address:1}).populate('movies');
-        if(!theatre){
+const getAllTheatre = async (data) => {
+    try {
+        let query = {};
+        let pagination = {};
+
+        if (data && data.city) query.city = data.city;
+        if (data && data.pincode) query.pincode = Number(data.pincode);
+        if (data && data.name) query.name = data.name;
+        if (data && data.movieId) query.movieIds = { has: data.movieId };
+
+        if (data && data.limit) pagination.take = Number(data.limit);
+        if (data && data.skip) {
+            let perPage = data.limit ? Number(data.limit) : 3;
+            pagination.skip = Number(data.skip) * perPage;
+        }
+
+        const response = await prisma.theatre.findMany({
+            where: query,
+            ...pagination
+        });
+
+        return response.map(theatre => ({
+            ...theatre,
+            movies: theatre.movieIds
+        }));
+    } catch (error) {
+        throw error;
+    }
+};
+
+const updateTheatre = async (id, data) => {
+    try {
+        const existingTheatre = await prisma.theatre.findUnique({
+            where: { id }
+        });
+
+        if (!existingTheatre) {
+            throw {
+                err: "No theatre found for the given id",
+                code: STATUS.NOT_FOUND
+            };
+        }
+
+        let updateData = { ...data };
+        if (updateData.pincode) {
+            updateData.pincode = Number(updateData.pincode);
+        }
+
+        const response = await prisma.theatre.update({
+            where: { id },
+            data: updateData
+        });
+
+        return {
+            ...response,
+            movies: response.movieIds
+        };
+    } catch (error) {
+        throw error;
+    }
+};
+
+const updateMoviesInTheatre = async (theatreId, moviesIds, insert) => {
+    try {
+        const theatre = await prisma.theatre.findUnique({
+            where: { id: theatreId }
+        });
+
+        if (!theatre) {
+            throw {
+                err: "No theatre found for the given id",
+                code: STATUS.NOT_FOUND
+            };
+        }
+
+        let updatedMovieIds = [...theatre.movieIds];
+
+        if (insert) {
+            updatedMovieIds = [...new Set([...updatedMovieIds, ...moviesIds])];
+        } else {
+            updatedMovieIds = updatedMovieIds.filter(id => !moviesIds.includes(id));
+        }
+
+        const updatedTheatre = await prisma.theatre.update({
+            where: { id: theatreId },
+            data: {
+                movieIds: updatedMovieIds
+            }
+        });
+
+        const movies = await prisma.movie.findMany({
+            where: {
+                id: {
+                    in: updatedTheatre.movieIds
+                }
+            }
+        });
+
+        return {
+            ...updatedTheatre,
+            movies
+        };
+    } catch (error) {
+        throw error;
+    }
+};
+
+const getMoviesInTheatre = async (id) => {
+    try {
+        const theatre = await prisma.theatre.findUnique({
+            where: { id }
+        });
+
+        if (!theatre) {
             throw {
                 err: "No theatre with given id",
-                code :STATUS.NOT_FOUND
-            }
+                code: STATUS.NOT_FOUND
+            };
         }
-        return theatre;
-    } catch(error){
-        console.log(error);
+
+        const movies = await prisma.movie.findMany({
+            where: {
+                id: {
+                    in: theatre.movieIds
+                }
+            }
+        });
+
+        return {
+            id: theatre.id,
+            name: theatre.name,
+            address: theatre.address,
+            movies
+        };
+    } catch (error) {
         throw error;
     }
-}
+};
 
 const checkMovieInATheatre = async (theatreId, movieId) => {
     try {
-        let response = await Theatre.findById(theatreId);
-        if(!response) {
+        const response = await prisma.theatre.findUnique({
+            where: { id: theatreId }
+        });
+
+        if (!response) {
             throw {
                 err: "No such theatre found for the given id",
                 code: STATUS.NOT_FOUND
-            }
+            };
         }
-        return response.movies.indexOf(movieId) != -1;
+
+        return response.movieIds.includes(movieId);
     } catch (error) {
-        console.log(error);
         throw error;
     }
-}
+};
 
 module.exports = {
     createTheatre,
@@ -222,4 +234,4 @@ module.exports = {
     updateMoviesInTheatre,
     getMoviesInTheatre,
     checkMovieInATheatre
-}
+};

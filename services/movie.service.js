@@ -1,116 +1,113 @@
-const Movie = require('../models/movie.model');
+const prisma = require('../utils/prismaClient');
 const { STATUS } = require('../utils/constants');
-/**
- * 
- * @param data -> object containing details of new movie to be created
- * @returns -> returns the new movie created
- */
 
 const createMovie = async (data) => {
     try {
-        const movie = await Movie.create(data);
+        const movie = await prisma.movie.create({
+            data: {
+                name: data.name,
+                description: data.description,
+                casts: data.casts,
+                trailerUrl: data.trailerUrl,
+                language: data.language,
+                releaseDate: new Date(data.releaseDate),
+                director: data.director,
+                releaseStatus: data.releaseStatus || "UPCOMING",
+                poster: data.poster
+            }
+        });
         return movie;
     } catch (error) {
-        if(error.name == 'ValidationError') {
-            let err = {};
-            Object.keys(error.errors).forEach((key) => {
-                err[key] = error.errors[key].message;
-            });
-            console.log(err);
-            throw {err: err, code: STATUS.UNPROCESSABLE_ENTITY};
-        } else {
-            throw error;
-        }
-    } 
-}
-
-/**
- * 
- * @param id -> id which will be used to identify movie to be deleted
- * @returns -> object containing details of the movie deleted
- */
+        throw error;
+    }
+};
 
 const deleteMovie = async (id) => {
-    try{
-        const movie = await Movie.findByIdAndDelete(id);
-        if(!movie) {
+    try {
+        const existingMovie = await prisma.movie.findUnique({
+            where: { id }
+        });
+
+        if (!existingMovie) {
             throw {
                 err: "No movie found for the corresponding id provided",
                 code: STATUS.NOT_FOUND
-            }
+            };
         }
-    return movie;
-    }catch(error){
-        console.log(error);
-            throw error;
-            
-    }
-}
 
-/**
- * 
- * @param id -> id which will be used to identify movie to be fetched
- * @returns -> object containing details of the movie fetched
- */
+        const movie = await prisma.movie.delete({
+            where: { id }
+        });
+
+        return movie;
+    } catch (error) {
+        throw error;
+    }
+};
 
 const getMoviById = async (id) => {
-    const movie = await Movie.findById(id);
-    if(!movie) {
+    const movie = await prisma.movie.findUnique({
+        where: { id }
+    });
+
+    if (!movie) {
         throw {
             err: "No movie found for the corresponding id provided",
             code: STATUS.NOT_FOUND
-        }
-    };
+        };
+    }
     return movie;
-}
+};
 
-/**
- * 
- * @param id -> id which will be used to identify movie to be updated
- * @param data -> object containing details of movie to be updated
- * @returns -> object containing details of the movie updated
- */
-
-const updateMovie = async (id,data) =>{
-    
+const updateMovie = async (id, data) => {
     try {
-        const movie = await Movie.findByIdAndUpdate(id, data, {new: true, runValidators: true});
+        const existingMovie = await prisma.movie.findUnique({
+            where: { id }
+        });
+
+        if (!existingMovie) {
+            throw {
+                err: "No movie found for the corresponding id provided",
+                code: STATUS.NOT_FOUND
+            };
+        }
+
+        let updateData = { ...data };
+        if (updateData.releaseDate) {
+            updateData.releaseDate = new Date(updateData.releaseDate);
+        }
+
+        const movie = await prisma.movie.update({
+            where: { id },
+            data: updateData
+        });
+
         return movie;
     } catch (error) {
-        if(error.name == 'ValidationError') {
-            let err = {};
-            Object.keys(error.errors).forEach((key) => {
-                err[key] = error.errors[key].message;
-            });
-            console.log(err);
-            throw {err: err, code: STATUS.UNPROCESSABLE_ENTITY};
-        } else {
-            throw error;
-        }
+        throw error;
     }
-
-}
-
-/**
- * 
- * @param filter -> filter will be used to filtering out movie based on the conditions
- * @returns -> object containing all the movies fetched based on the filter condtions
- */
+};
 
 const fetchMovies = async (filter) => {
     let query = {};
-    if(filter.name){
-        query.name= filter.name;
+
+    if (filter.name) {
+        query.name = filter.name;
     }
-    let movies = await Movie.find(query);
-    if(movies.length===0){
+
+    const movies = await prisma.movie.findMany({
+        where: query
+    });
+
+    if (movies.length === 0) {
         throw {
-            err : 'Not able to find the queries',
-            code : STATUS.NOT_FOUND
-        }
+            err: 'Not able to find the queries',
+            code: STATUS.NOT_FOUND
+        };
     }
+
     return movies;
-}    
+};
 
 module.exports = {
     createMovie,
@@ -118,4 +115,4 @@ module.exports = {
     getMoviById,
     updateMovie,
     fetchMovies
-}
+};

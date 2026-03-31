@@ -1,59 +1,61 @@
 const badRequestResponse = {
     success: false,
     err: '',
-    data : {},
-    message : "Malformed Request | Bad Request",
+    data: {},
+    message: "Malformed Request | Bad Request",
 };
 
 const { STATUS } = require('../utils/constants');
-/**
- * 
- * @param req -> HTTP request object
- * @param {*} res -> HTTP response object
- * @param {*} next -> next middleware function
- * @returns -> whether the request is valid or not
- */
 
 const validateMovieCreateRequest = (req, res, next) => {
-    //validate the movie name
     if (!req.body.name) {
-        badRequestResponse.err ="The name of the movie is not present in the request sent";
+        badRequestResponse.err = "The name of the movie is not present in the request sent";
         return res.status(STATUS.BAD_REQUEST).json(badRequestResponse);
-    } 
+    }
 
-    //validate the movie description
     if (!req.body.description) {
-        badRequestResponse.err ="The name of the movie is not present in the request sent";
+        badRequestResponse.err = "The description of the movie is not present in the request sent";
         return res.status(STATUS.BAD_REQUEST).json(badRequestResponse);
     }
 
-    //validate the movie casts
-    if (!req.body.casts || !(req.body.casts instanceof Array )|| req.body.casts.length<=0) {
-        badRequestResponse.err ="The casts of the movie is not present in the request sent";
+    if (!req.body.casts || !Array.isArray(req.body.casts) || req.body.casts.length <= 0) {
+        badRequestResponse.err = "The casts of the movie is not present in the request sent";
         return res.status(STATUS.BAD_REQUEST).json(badRequestResponse);
     }
 
-    //validate the movie trailer url    
     if (!req.body.trailerUrl) {
-        badRequestResponse.err ="The trailer url of the movie is not present in the request sent";
+        badRequestResponse.err = "The trailer url of the movie is not present in the request sent";
         return res.status(STATUS.BAD_REQUEST).json(badRequestResponse);
     }
 
-    //validate the movie release date
     if (!req.body.releaseDate) {
-        badRequestResponse.err ="The release date of the movie is not present in the request sent";
+        badRequestResponse.err = "The release date of the movie is not present in the request sent";
         return res.status(STATUS.BAD_REQUEST).json(badRequestResponse);
     }
 
-    //validate the movie director
-    if (!req.body.director) {
-        badRequestResponse.err ="The director of the movie is not present in the request sent";
+    if (isNaN(new Date(req.body.releaseDate).getTime())) {
+        badRequestResponse.err = "The release date of the movie must be a valid date";
         return res.status(STATUS.BAD_REQUEST).json(badRequestResponse);
     }
+
+    if (!req.body.director) {
+        badRequestResponse.err = "The director of the movie is not present in the request sent";
+        return res.status(STATUS.BAD_REQUEST).json(badRequestResponse);
+    }
+
+    if (!req.body.language) {
+        badRequestResponse.err = "The language of the movie is not present in the request sent";
+        return res.status(STATUS.BAD_REQUEST).json(badRequestResponse);
+    }
+
+    if (!req.body.poster) {
+        badRequestResponse.err = "The poster of the movie is not present in the request sent";
+        return res.status(STATUS.BAD_REQUEST).json(badRequestResponse);
+    }
+
     next();
 };
 
 module.exports = {
     validateMovieCreateRequest
-};  
-  
+};

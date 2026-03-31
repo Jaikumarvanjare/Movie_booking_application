@@ -7,30 +7,30 @@ const routes = (app) => {
         '/mba/api/v1/bookings',
         authMiddleware.isAuthenticated,
         bookingMiddleware.validateBookingCreateRequest,
-        bookingController.create    
-    )
+        bookingController.create
+    );
     app.patch(
         '/mba/api/v1/bookings/:id',
         authMiddleware.isAuthenticated,
         bookingMiddleware.canChangeStatus,
-        bookingController.update    
-    )
+        bookingController.update
+    );
     app.get(
         '/mba/api/v1/bookings',
         authMiddleware.isAuthenticated,
-        bookingController.getBookings  
-    )
+        bookingController.getBookings
+    );
     app.get(
         '/mba/api/v1/bookings/all',
         authMiddleware.isAuthenticated,
         authMiddleware.isAdmin,
-        bookingController.getAllBookings   
-    )
+        bookingController.getAllBookings
+    );
     app.get(
         '/mba/api/v1/bookings/:id',
         authMiddleware.isAuthenticated,
-        bookingController.getBookingById    
-    )
-}
+        bookingController.getBookingById
+    );
+};
 
-module.exports =routes;
+module.exports = routes;

@@ -1,75 +1,57 @@
-const { errorResponseBody } = require("../utils/responsebody")
+const { createErrorResponseBody } = require("../utils/responsebody");
+const { STATUS } = require('../utils/constants');
 
-const badRequestResponse = {
-    success: false,
-    err: '',
-    data : {},
-    err : "Malformed Request | Bad Request",
-}
+const validateTheatreCreateRequest = async (req, res, next) => {
+    const errorResponseBody = createErrorResponseBody();
 
-/**
- * 
- * @param req -> HTTP request object
- * @param {*} res -> HTTP response object
- * @param {*} next -> next middleware function
- * @returns -> whether the request is valid or not
- */
-
-const validateTheatreCreateRequest = async(req,res, next) => {
-    //validate the theatre name
-    if(!req.body.name){
-        errorResponseBody.err ="The name of the theatre is not present in the request sent";
-        return res.status(400).json(errorResponseBody);
+    if (!req.body.name) {
+        errorResponseBody.err = "The name of the theatre is not present in the request sent";
+        return res.status(STATUS.BAD_REQUEST).json(errorResponseBody);
     }
 
-    //validate the theatre pincode
-    if(!req.body.pincode){
-        errorResponseBody.err ="The pincode of the theatre is not present in the request sent";
-        return res.status(400).json(errorResponseBody);
+    if (!req.body.pincode) {
+        errorResponseBody.err = "The pincode of the theatre is not present in the request sent";
+        return res.status(STATUS.BAD_REQUEST).json(errorResponseBody);
     }
 
-    //validate the theatre city
-     if(!req.body.city){
-        errorResponseBody.err ="The city of the theatre is not present in the request sent";
-        return res.status(400).json(errorResponseBody);
+    if (!req.body.city) {
+        errorResponseBody.err = "The city of the theatre is not present in the request sent";
+        return res.status(STATUS.BAD_REQUEST).json(errorResponseBody);
     }
 
-    //validate the movie address   
-    if(!req.body.address){
-        errorResponseBody.err ="The address of the theatre is not present in the request sent";
-        return res.status(400).json(errorResponseBody);
+    if (!req.body.address) {
+        errorResponseBody.err = "The address of the theatre is not present in the request sent";
+        return res.status(STATUS.BAD_REQUEST).json(errorResponseBody);
     }
     next();
-}
+};
 
-const validateUpdateMovies = async(req,res, next) => {
-    //validation of insert parameter
-    if(req.body.insert==undefined){
-        errorResponseBody.err=" The insert parameter is missing in the request";
-        return res.status(400).json(errorResponseBody);
+const validateUpdateMovies = async (req, res, next) => {
+    const errorResponseBody = createErrorResponseBody();
+
+    if (req.body.insert == undefined) {
+        errorResponseBody.err = " The insert parameter is missing in the request";
+        return res.status(STATUS.BAD_REQUEST).json(errorResponseBody);
     }
 
-    //validate movieIds presence
-    if(!req.body.movieIds){
-        errorResponseBody.err="No movies is present in the request";
-        return res.status(400).json(errorResponseBody);
+    if (!req.body.movieIds) {
+        errorResponseBody.err = "No movies is present in the request";
+        return res.status(STATUS.BAD_REQUEST).json(errorResponseBody);
     }
 
-    //validate whether moviedIds is an array or not
-    if(!(req.body.movieIds instanceof Array)) {
-        errorResponseBody.err= "Expected array of movies but found something else";
-        return res.status(400).json(errorResponseBody);
+    if (!Array.isArray(req.body.movieIds)) {
+        errorResponseBody.err = "Expected array of movies but found something else";
+        return res.status(STATUS.BAD_REQUEST).json(errorResponseBody);
     }
 
-    //validate length of the movieIds whether empty or not 
-    if(req.body.movieIds.length<=0){
-        errorResponseBody.err="No movies is present in the array provided";
-        return res.status(400).json(errorResponseBody);
+    if (req.body.movieIds.length <= 0) {
+        errorResponseBody.err = "No movies is present in the array provided";
+        return res.status(STATUS.BAD_REQUEST).json(errorResponseBody);
     }
     next();
-}
+};
 
 module.exports = {
     validateTheatreCreateRequest,
     validateUpdateMovies
-}
+};

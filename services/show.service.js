@@ -1,113 +1,134 @@
-const Show = require('../models/show.model');
-const Theatre = require('../models/theatre.model');
+const prisma = require('../utils/prismaClient');
 const { STATUS } = require('../utils/constants');
 
-/**
- * 
- * @param data -> object containing details of the show to be created
- * @returns -> object with the new show details
- */
 const createShow = async (data) => {
     try {
-        const theatre = await Theatre.findById(data.theatreId);
-        if(!theatre) {
+        const theatre = await prisma.theatre.findUnique({
+            where: { id: data.theatreId }
+        });
+
+        if (!theatre) {
             throw {
                 err: 'No theatre found',
                 code: STATUS.NOT_FOUND
-            }
+            };
         }
-        if(theatre.movies.indexOf(data.movieId) == -1) {
+
+        if (!theatre.movieIds.includes(data.movieId)) {
             throw {
                 err: 'Movie is currently not available in the requested theatre',
                 code: STATUS.NOT_FOUND
-            }
+            };
         }
-        const response = await Show.create(data);
+
+        const response = await prisma.show.create({
+            data: {
+                theatreId: data.theatreId,
+                movieId: data.movieId,
+                timing: new Date(data.timing),
+                noOfSeats: Number(data.noOfSeats),
+                seatConfiguration: data.seatConfiguration,
+                price: Number(data.price),
+                format: data.format
+            }
+        });
+
         return response;
     } catch (error) {
-        if(error.name == 'ValidationError') {
-            let err = {};
-            Object.keys(error.errors).forEach(key => {
-                err[key] = error.errors[key].message;
-            });
-            throw {
-                err,
-                code: STATUS.UNPROCESSABLE_ENTITY
-            }
-        }
         throw error;
     }
-}
+};
 
-const getShows = async (data) =>{
+const getShows = async (data) => {
     try {
         let filter = {};
-        if(data.theatreId){
+
+        if (data.theatreId) {
             filter.theatreId = data.theatreId;
         }
-        if(data.movieId){
-            filter.movieId = data.movieId
+        if (data.movieId) {
+            filter.movieId = data.movieId;
         }
-        const response = await Show.find(filter).populate(theatreId);
-        if(!response){
-            throw {
-                err : 'No shows found',
-                code : STATUS.NOT_FOUND
+
+        const response = await prisma.show.findMany({
+            where: filter,
+            include: {
+                theatre: true
             }
+        });
+
+        if (response.length === 0) {
+            throw {
+                err: 'No shows found',
+                code: STATUS.NOT_FOUND
+            };
         }
+
         return response;
-    } 
-    catch(error) {
+    } catch (error) {
         throw error;
     }
-}
-
+};
 
 const deleteShow = async (id) => {
     try {
-        const response = await Show.findByIdAndDelete(id);
-        if(!response) {
+        const existingShow = await prisma.show.findUnique({
+            where: { id }
+        });
+
+        if (!existingShow) {
             throw {
                 err: 'No show found',
                 code: STATUS.NOT_FOUND
-            }
+            };
         }
-        return response;
-    } catch (error) {
-        throw error;
-    }
-}
 
-const updateShow = async (data,showId) => {
-    try{
-        const response = await Show.findByIdAndUpdate( showId,data, {
-            new :true, 
-            runValidators: true
+        return await prisma.show.delete({
+            where: { id }
         });
-        if(!response){
-            throw {
-                err : "No show found for the given id",
-                code : STATUS.NOT_FOUND
-            }
-        }
-        return response;
     } catch (error) {
-        if(error.name =='ValidationError'){
-            let err = {};
-            Object.keys(error.errors).forEach(key =>{
-                err[key] = error.errors[key].message;
-            });
-            throw {
-                err,
-                code : STATUS.UNPROCESSABLE_ENTITY
-            }
-        }
         throw error;
     }
-}
+};
+
+const updateShow = async (data, showId) => {
+    try {
+        const existingShow = await prisma.show.findUnique({
+            where: { id: showId }
+        });
+
+        if (!existingShow) {
+            throw {
+                err: "No show found for the given id",
+                code: STATUS.NOT_FOUND
+            };
+        }
+
+        let updateData = { ...data };
+        if (updateData.timing) {
+            updateData.timing = new Date(updateData.timing);
+        }
+        if (updateData.noOfSeats) {
+            updateData.noOfSeats = Number(updateData.noOfSeats);
+        }
+        if (updateData.price) {
+            updateData.price = Number(updateData.price);
+        }
+
+        const response = await prisma.show.update({
+            where: { id: showId },
+            data: updateData
+        });
+
+        return response;
+    } catch (error) {
+        throw error;
+    }
+};
+
 module.exports = {
     createShow,
     getShows,
     deleteShow,
     updateShow
-}
+};

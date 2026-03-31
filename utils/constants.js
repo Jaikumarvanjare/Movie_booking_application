@@ -1,16 +1,14 @@
-const { CANCELLED } = require("node:dns");
-
-const USER_STATUS ={
-    approved : "APPROVED",
-    pending : "PENDING",
-    rejected : "REJECTED"
+const USER_STATUS = {
+    approved: "APPROVED",
+    pending: "PENDING",
+    rejected: "REJECTED"
 };
 
 const USER_ROLE = {
-    customer : "CUSTOMER",
-    admin : "ADMIN",
-    client : "CLIENT"
-}
+    customer: "CUSTOMER",
+    admin: "ADMIN",
+    client: "CLIENT"
+};
 
 const STATUS_CODES = {
     OK: 200,
@@ -21,29 +19,27 @@ const STATUS_CODES = {
     BAD_REQUEST: 400,
     FORBIDDEN: 403,
     UNPROCESSABLE_ENTITY: 422,
-    GONE : 410,
-    PAYMENT_REQUIRED : 402
-}
+    GONE: 410,
+    PAYMENT_REQUIRED: 402
+};
 
-const BOOKING_STATUS ={
-    cancelled : "CANCELLED",
-    successfull : "SUCCESSFULL",
-    processing : "PROCESSING",
-    expired : "EXPIRED"
-}
+const BOOKING_STATUS = {
+    cancelled: "CANCELLED",
+    successfull: "SUCCESSFULL",
+    processing: "PROCESSING",
+    expired: "EXPIRED"
+};
 
 const PAYMENT_STATUS = {
     failed: "FAILED",
     success: "SUCCESS",
     pending: "PENDING"
-}
-
-
+};
 
 module.exports = {
     USER_ROLE,
     USER_STATUS,
-    STATUS : STATUS_CODES,
+    STATUS: STATUS_CODES,
     BOOKING_STATUS,
-    PAYMENT_STATUS          
-}
+    PAYMENT_STATUS
+};

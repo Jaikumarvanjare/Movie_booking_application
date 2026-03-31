@@ -1,0 +1,97 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+  
+}
+
+model User {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  name       String   @unique
+  email      String   @unique
+  password   String
+  userRole   String   @default("CUSTOMER")
+  userStatus String   @default("APPROVED")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  bookings   Booking[]
+  theatres   Theatre[]
+}
+
+model Movie {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  description   String
+  casts         String[]
+  trailerUrl    String
+  language      String   @default("English")
+  releaseDate   DateTime
+  director      String
+  releaseStatus String   @default("UPCOMING")
+  poster        String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Theatre {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String?
+  city        String
+  pincode     Int
+  address     String?
+  movieIds    String[] @db.ObjectId
+  ownerId     String   @db.ObjectId
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  owner       User     @relation(fields: [ownerId], references: [id])
+  shows       Show[]
+}
+
+model Show {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  theatreId         String   @db.ObjectId
+  movieId           String   @db.ObjectId
+  timing            DateTime
+  noOfSeats         Int
+  seatConfiguration String?
+  price             Float
+  format            String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  theatre           Theatre  @relation(fields: [theatreId], references: [id])
+}
+
+model Booking {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  theatreId  String   @db.ObjectId
+  movieId    String   @db.ObjectId
+  userId     String   @db.ObjectId
+  timing     DateTime
+  noOfSeats  Int
+  totalCost  Float
+  status     String   @default("PROCESSING")
+  seat       String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user       User     @relation(fields: [userId], references: [id])
+  payment    Payment?
+}
+
+model Payment {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  bookingId  String   @unique @db.ObjectId
+  amount     Float
+  status     String   @default("PENDING")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  booking    Booking  @relation(fields: [bookingId], references: [id])
+}

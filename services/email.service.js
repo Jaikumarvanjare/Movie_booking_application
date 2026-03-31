@@ -1,13 +1,18 @@
-
 const axios = require('axios');
-const User = require('../models/user.model');
+const userService = require('../services/user.service');
+
 const sendMail = async (subject, id, content) => {
-    const user = await User.findById(id);
-    axios.post(process.env.NOTI_SERVICE + '/notiservice/api/v1/notifications', {
+    const user = await userService.getUserById(id);
+
+    if (!user) {
+        throw new Error('User not found for sending email');
+    }
+
+    await axios.post(process.env.NOTI_SERVICE + '/notiservice/api/v1/notifications', {
         subject: subject,
-        recepientEmails: [user.email] ,
+        recepientEmails: [user.email],
         content: content
-     });
-}
+    });
+};
 
 module.exports = sendMail;

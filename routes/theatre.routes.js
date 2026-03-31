@@ -2,73 +2,63 @@ const theatreController = require('../controllers/theatre.controller');
 const theatreMiddleware = require('../middlewares/theatre.middlewares');
 const authMiddleware = require('../middlewares/auth.middlewares');
 
-const routes = (app) =>{
-     //routes function takes express app object as parameter
-
-     //CREATE
+const routes = (app) => {
     app.post(
         '/mba/api/v1/theatres',
         authMiddleware.isAuthenticated,
         authMiddleware.isAdminOrClient,
         theatreMiddleware.validateTheatreCreateRequest,
         theatreController.createTheatre
-     );
+    );
 
-     //DELETE     
-     app.delete(
-          '/mba/api/v1/theatres/:id',
-          authMiddleware.isAuthenticated,
-          authMiddleware.isAdminOrClient,
-          theatreController.deleteTheatre
-     );
+    app.delete(
+        '/mba/api/v1/theatres/:id',
+        authMiddleware.isAuthenticated,
+        authMiddleware.isAdminOrClient,
+        theatreController.deleteTheatre
+    );
 
-     //READ
-     app.get(
-          '/mba/api/v1/theatres/:id',
-          theatreController.getTheatre
-     );
+    app.get(
+        '/mba/api/v1/theatres/:id',
+        theatreController.getTheatre
+    );
 
-     //READ
-     app.get(
-          '/mba/api/v1/theatres',
-          theatreController.getTheatres
-     );
-     
-     //UPDATE
-     app.patch(
-          '/mba/api/v1/theatres/:id',
-          authMiddleware.isAuthenticated,
-          authMiddleware.isAdminOrClient,
-          theatreController.updateTheatre
-     );
+    app.get(
+        '/mba/api/v1/theatres',
+        theatreController.getTheatres
+    );
 
-     //UPDATE
-     app.put(
-          '/mba/api/v1/theatres/:id',
-          authMiddleware.isAuthenticated,             
-          authMiddleware.isAdminOrClient,
-          theatreController.updateTheatre
-     );
-     
-     //UPDATE
-     app.patch(
-          '/mba/api/v1/theatres/:id/movies',  
-          authMiddleware.isAuthenticated,
-          theatreMiddleware.validateUpdateMovies,
-          theatreController.updateMovies
-     );
-     //GET
-     app.get(
-          '/mba/api/v1/theatres/:id/movies',
-          theatreController.getMovies
-     );
+    app.patch(
+        '/mba/api/v1/theatres/:id',
+        authMiddleware.isAuthenticated,
+        authMiddleware.isAdminOrClient,
+        theatreController.updateTheatre
+    );
 
-     //GET
-     app.get(
-          '/mba/api/v1/theatres/:theatreId/movies/:movieId',
-          theatreController.checkMovie
-     );
-}
+    app.put(
+        '/mba/api/v1/theatres/:id',
+        authMiddleware.isAuthenticated,
+        authMiddleware.isAdminOrClient,
+        theatreController.updateTheatre
+    );
+
+    app.patch(
+        '/mba/api/v1/theatres/:id/movies',
+        authMiddleware.isAuthenticated,
+        authMiddleware.isAdminOrClient,
+        theatreMiddleware.validateUpdateMovies,
+        theatreController.updateMovies
+    );
+
+    app.get(
+        '/mba/api/v1/theatres/:id/movies',
+        theatreController.getMovies
+    );
+
+    app.get(
+        '/mba/api/v1/theatres/:theatreId/movies/:movieId',
+        theatreController.checkMovie
+    );
+};
 
 module.exports = routes;
- 
