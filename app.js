@@ -11,11 +11,15 @@ const showRoutes = require('./routes/show.routes');
 const paymentRoutes = require('./routes/payment.routes');
 const notificationRoutes = require('./routes/notification.routes');
 
+const setupSwagger = require('./config/swagger');
+
 const app = express();
 
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+setupSwagger(app);
 
 movieRoutes(app);
 theatreRoutes(app);
