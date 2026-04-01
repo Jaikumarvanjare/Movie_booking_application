@@ -1,3 +1,5 @@
+const env = require('../config/env');
+
 const axios = require('axios');
 const userService = require('../services/user.service');
 
@@ -8,7 +10,7 @@ const sendMail = async (subject, id, content) => {
         throw new Error('User not found for sending email');
     }
 
-    await axios.post(process.env.NOTI_SERVICE + '/notiservice/api/v1/notifications', {
+    await axios.post(env.NOTI_SERVICE + '/notiservice/api/v1/notifications', {
         subject: subject,
         recepientEmails: [user.email],
         content: content

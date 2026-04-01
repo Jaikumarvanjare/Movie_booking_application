@@ -1,4 +1,4 @@
-require('dotenv').config();
+const env = require('../../config/env');
 
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcrypt');
@@ -7,9 +7,9 @@ const { USER_ROLE, USER_STATUS } = require('../../utils/constants');
 const prisma = new PrismaClient();
 
 async function seedDemo() {
-  if (process.env.NODE_ENV === "production") return;
+  if (env.NODE_ENV === "production") return;
 
-  const hashedPassword = await bcrypt.hash(process.env.DEMO_PASSWORD, 10);
+  const hashedPassword = await bcrypt.hash(env.DEMO_PASSWORD, 10);
 
   // USERS
   const users = ["rahul", "priya", "amit", "neha", "arjun"];

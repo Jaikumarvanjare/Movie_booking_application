@@ -1,3 +1,4 @@
+const env = require('../config/env');
 const userService = require('../services/user.service');
 const { createSuccessResponseBody, createErrorResponseBody } = require('../utils/responsebody');
 const jwt = require('jsonwebtoken');
@@ -35,7 +36,7 @@ const signin = async (req, res) => {
 
         const token = jwt.sign(
             { id: user.id, email: user.email },
-            process.env.AUTH_KEY,
+            env.AUTH_KEY,
             { expiresIn: '1h' }
         );
 

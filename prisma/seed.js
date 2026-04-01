@@ -1,4 +1,4 @@
-require('dotenv').config();
+const env = require('../config/env');
 
 const seedAdmin = require('./seeds/admin.seed');
 const seedDemo = require('./seeds/demo.seed');
@@ -6,12 +6,12 @@ const seedDemo = require('./seeds/demo.seed');
 async function main() {
   console.log("🌱 Starting database seeding...\n");
 
-  if (process.env.SEED_ADMIN === "true") {
+  if (env.SEED_ADMIN === "true") {
     console.log("👉 Seeding admin...");
     await seedAdmin();
   }
 
-  if (process.env.SEED_DEMO === "true") {
+  if (env.SEED_DEMO === "true") {
     console.log("👉 Seeding demo...");
     await seedDemo();
   }
