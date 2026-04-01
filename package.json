@@ -1,30 +1,39 @@
 {
-  "name": "airbnb",
+  "name": "movie-booking-application",
   "version": "1.0.0",
-  "description": "Airbnb backend project using Express",
+  "description": "Movie Booking Application backend using Express + Prisma",
   "main": "index.js",
   "type": "commonjs",
   "scripts": {
-    "start": "nodemon index.js",
-    "dev": "nodemon index.js"
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "seed": "node prisma/seed.js",
+    "seed:admin": "node prisma/seeds/admin.seed.js",
+    "seed:demo": "node prisma/seeds/demo.seed.js",
+    "db:push": "prisma db push",
+    "db:generate": "prisma generate",
+    "db:studio": "prisma studio",
+    "db:reset": "prisma db push --force-reset && npm run seed",
+    "db:migrate": "prisma migrate dev",
+    "clean": "rm -rf node_modules && rm package-lock.json",
+    "reinstall": "npm run clean && npm install",
+    "postinstall": "prisma generate"
   },
-  "keywords": [],
   "author": "Jai Kumar Vanjare",
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^6.14.0",
     "axios": "^1.14.0",
     "bcrypt": "^6.0.0",
-    "body-parser": "^2.2.2",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "nodemailer": "^8.0.2",
-    "prisma": "^6.14.0",
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.11"
+    "nodemon": "^3.1.11",
+    "prisma": "^6.14.0"
   }
 }

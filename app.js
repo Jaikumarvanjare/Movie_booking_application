@@ -1,5 +1,4 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 const cors = require('cors');
 
 const movieRoutes = require('./routes/movie.routes');
@@ -16,8 +15,8 @@ const setupSwagger = require('./config/swagger');
 const app = express();
 
 app.use(cors());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 setupSwagger(app);
 
@@ -31,7 +30,7 @@ paymentRoutes(app);
 notificationRoutes(app);
 
 app.get('/', (req, res) => {
-    res.send('Home');
+  res.send('🚀 CineBook API Running');
 });
 
 module.exports = app;
