@@ -11,7 +11,9 @@ const signup = async (req, res) => {
     try {
         const response = await userService.createUser(req.body);
         successResponseBody.data = response;
-        successResponseBody.message = "succcessfully register a account";
+
+        successResponseBody.message = "Successfully registered account";
+
         return res.status(201).json(successResponseBody);
     } catch (error) {
         console.log(error);
@@ -26,12 +28,15 @@ const signin = async (req, res) => {
 
     try {
         const user = await userService.getUserByEmail(req.body.email);
+
+        if (!user) {
+            throw { err: "User not found", code: 404 };
+        }
+
         const isValidPassword = await bcrypt.compare(req.body.password, user.password);
 
         if (!isValidPassword) {
-            return res.status(401).json({
-                text: "Invalid password."
-            });
+            throw { err: "Invalid password", code: 401 };
         }
 
         const token = jwt.sign(
@@ -61,6 +66,11 @@ const resetPassword = async (req, res) => {
 
     try {
         const user = await userService.getUserById(req.user);
+
+        if (!user) {
+            throw { err: "User not found", code: 404 };
+        }
+
         const isOldPasswordCorrect = await bcrypt.compare(req.body.oldPassword, user.password);
 
         if (!isOldPasswordCorrect) {
@@ -69,7 +79,9 @@ const resetPassword = async (req, res) => {
 
         const updatedUser = await userService.updatePassword(req.user, req.body.newPassword);
         successResponseBody.data = updatedUser;
-        successResponseBody.message = "Succesfully updated the password for the given user";
+
+        successResponseBody.message = "Successfully updated the password for the given user";
+
         return res.status(200).json(successResponseBody);
     } catch (error) {
         errorResponseBody.err = error.err || error;

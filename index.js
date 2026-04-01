@@ -1,6 +1,7 @@
 const env = require('./config/env');
 
 const app = require('./app');
+const startJobs = require('./jobs/jobRunner');
 
 const PORT = env.PORT || 3000;
 
@@ -36,4 +37,6 @@ app.listen(PORT, () => {
   console.log("✔ Seeding is idempotent (safe to re-run)");
   console.log("✔ Demo seeding disabled in production");
   console.log("✔ Environment variables loaded from .env\n");
+
+  startJobs();
 });

@@ -19,7 +19,7 @@ const createUser = async (data) => {
             throw { err: 'User already exists with the given email', code: STATUS.BAD_REQUEST };
         }
 
-        const existingName = await prisma.user.findUnique({
+        const existingName = await prisma.user.findFirst({
             where: { name: data.name }
         });
 
