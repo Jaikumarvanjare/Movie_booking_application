@@ -89,6 +89,10 @@ model Payment {
   bookingId  String   @unique @db.ObjectId
   amount     Float
   status     String   @default("PENDING")
+  gateway    String?
+  orderId    String?
+  paymentId  String?
+  currency   String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 

@@ -9,6 +9,18 @@ const routes = (app) => {
         paymentMiddlewares.verifyPaymentCreateRequest,
         paymentController.create
     );
+    app.post(
+        '/mba/api/v1/payments/razorpay/order',
+        authMiddlewares.isAuthenticated,
+        paymentMiddlewares.verifyRazorpayOrderRequest,
+        paymentController.createRazorpayOrder
+    );
+    app.post(
+        '/mba/api/v1/payments/razorpay/verify',
+        authMiddlewares.isAuthenticated,
+        paymentMiddlewares.verifyRazorpayVerificationRequest,
+        paymentController.verifyRazorpayPayment
+    );
     app.get(
         '/mba/api/v1/payments/:id',
         authMiddlewares.isAuthenticated,

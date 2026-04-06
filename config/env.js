@@ -31,5 +31,7 @@ module.exports = {
   ADMIN_EMAIL: process.env.ADMIN_EMAIL,
   ADMIN_PASSWORD: process.env.ADMIN_PASSWORD,
 
-  DEMO_PASSWORD: process.env.DEMO_PASSWORD
+  DEMO_PASSWORD: process.env.DEMO_PASSWORD,
+  RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID || process.env.KEY_ID,
+  RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET || process.env.KEY_SECRET
 };

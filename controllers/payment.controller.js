@@ -30,6 +30,36 @@ const create = async (req, res) => {
     }
 };
 
+const createRazorpayOrder = async (req, res) => {
+    const successResponseBody = createSuccessResponseBody();
+    const errorResponseBody = createErrorResponseBody();
+
+    try {
+        const response = await paymentService.createRazorpayOrder(req.body);
+        successResponseBody.data = response;
+        successResponseBody.message = 'Razorpay order created successfully';
+        return res.status(STATUS.CREATED).json(successResponseBody);
+    } catch (error) {
+        errorResponseBody.err = error.err || error;
+        return res.status(error.code || STATUS.INTERNAL_SERVER_ERROR).json(errorResponseBody);
+    }
+};
+
+const verifyRazorpayPayment = async (req, res) => {
+    const successResponseBody = createSuccessResponseBody();
+    const errorResponseBody = createErrorResponseBody();
+
+    try {
+        const response = await paymentService.verifyRazorpayPayment(req.body);
+        successResponseBody.data = response;
+        successResponseBody.message = 'Razorpay payment verified successfully';
+        return res.status(STATUS.OK).json(successResponseBody);
+    } catch (error) {
+        errorResponseBody.err = error.err || error;
+        return res.status(error.code || STATUS.INTERNAL_SERVER_ERROR).json(errorResponseBody);
+    }
+};
+
 const getPaymentDetailsById = async (req, res) => {
     const successResponseBody = createSuccessResponseBody();
     const errorResponseBody = createErrorResponseBody();
@@ -62,6 +92,8 @@ const getAllPayments = async (req, res) => {
 
 module.exports = {
     create,
+    createRazorpayOrder,
+    verifyRazorpayPayment,
     getPaymentDetailsById,
     getAllPayments
 };
