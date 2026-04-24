@@ -12,6 +12,7 @@ const createMovie = async (req, res) => {
         successResponseBody.message = "Successfully created the movie";
         return res.status(STATUS.CREATED).json(successResponseBody);
     } catch (error) {
+        errorResponseBody.message = 'Movie creation failed';
         errorResponseBody.err = error.err || error;
         return res.status(error.code || STATUS.INTERNAL_SERVER_ERROR).json(errorResponseBody);
     }
@@ -27,6 +28,7 @@ const deleteMovie = async (req, res) => {
         successResponseBody.message = "Successfully deleted the movie";
         return res.status(STATUS.OK).json(successResponseBody);
     } catch (error) {
+        errorResponseBody.message = 'Movie deletion failed';
         errorResponseBody.err = error.err || error;
         return res.status(error.code || STATUS.INTERNAL_SERVER_ERROR).json(errorResponseBody);
     }
@@ -41,6 +43,7 @@ const getMovie = async (req, res) => {
         successResponseBody.data = response;
         return res.status(STATUS.OK).json(successResponseBody);
     } catch (error) {
+        errorResponseBody.message = 'Movie fetch failed';
         errorResponseBody.err = error.err || error;
         return res.status(error.code || STATUS.INTERNAL_SERVER_ERROR).json(errorResponseBody);
     }
@@ -55,6 +58,7 @@ const updateMovie = async (req, res) => {
         successResponseBody.data = response;
         return res.status(STATUS.OK).json(successResponseBody);
     } catch (error) {
+        errorResponseBody.message = 'Movie update failed';
         errorResponseBody.err = error.err || error;
         return res.status(error.code || STATUS.INTERNAL_SERVER_ERROR).json(errorResponseBody);
     }
@@ -69,6 +73,7 @@ const getMovies = async (req, res) => {
         successResponseBody.data = response;
         return res.status(STATUS.OK).json(successResponseBody);
     } catch (error) {
+        errorResponseBody.message = 'Movie fetch failed';
         errorResponseBody.err = error.err || error;
         return res.status(error.code || STATUS.INTERNAL_SERVER_ERROR).json(errorResponseBody);
     }

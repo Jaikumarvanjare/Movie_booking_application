@@ -10,6 +10,18 @@ const PAYMENT_GATEWAYS = {
     razorpay: 'RAZORPAY'
 };
 
+const parseSerializedJson = (value) => {
+    if (!value || typeof value !== 'string') {
+        return null;
+    }
+
+    try {
+        return JSON.parse(value.replaceAll("'", '"'));
+    } catch (error) {
+        return null;
+    }
+};
+
 const getBookingWithShow = async (bookingId) => {
     const booking = await prisma.booking.findUnique({
         where: { id: bookingId }
@@ -83,8 +95,13 @@ const buildUpdatedSeatConfiguration = (show, booking) => {
     let updatedSeatConfiguration = show.seatConfiguration;
 
     if (show.seatConfiguration && booking.seat) {
-        const showSeatConfig = JSON.parse(show.seatConfiguration.replaceAll("'", '"'));
-        const bookedSeats = JSON.parse(booking.seat.replaceAll("'", '"'));
+        const showSeatConfig = parseSerializedJson(show.seatConfiguration);
+        const bookedSeats = parseSerializedJson(booking.seat);
+
+        if (!showSeatConfig?.rows || !Array.isArray(bookedSeats)) {
+            return updatedSeatConfiguration;
+        }
+
         const bookedSeatsMap = {};
 
         bookedSeats.forEach((seats) => {
@@ -201,7 +218,7 @@ const getRazorpayCredentials = () => {
     if (!keyId || !keySecret) {
         throw {
             err: 'Razorpay credentials are not configured on the backend',
-            code: STATUS.NOT_IMPLEMENTED
+            code: STATUS.INTERNAL_SERVER_ERROR
         };
     }
 
@@ -243,16 +260,23 @@ const createPayment = async (data) => {
 };
 
 const createRazorpayOrder = async (data) => {
-    try {
-        const { booking, isExpired } = await getBookingWithShow(data.bookingId);
+    let booking = null;
 
-        if (isExpired) {
-            return booking;
+    try {
+        const response = await getBookingWithShow(data.bookingId);
+        booking = response.booking;
+
+        if (response.isExpired) {
+            throw {
+                err: 'Booking expired before Razorpay order creation',
+                code: STATUS.GONE,
+                data: response.booking
+            };
         }
 
         validatePaymentAmount(booking, data.amount);
         const { keyId, keySecret } = getRazorpayCredentials();
-        const response = await axios.post(
+        const razorpayResponse = await axios.post(
             `${RAZORPAY_BASE_URL}/orders`,
             {
                 amount: Math.round(Number(data.amount) * 100),
@@ -274,14 +298,24 @@ const createRazorpayOrder = async (data) => {
             amount: Number(data.amount),
             status: PAYMENT_STATUS.pending,
             gateway: PAYMENT_GATEWAYS.razorpay,
-            orderId: response.data.id,
+            orderId: razorpayResponse.data.id,
             paymentId: null,
-            currency: response.data.currency || 'INR'
+            currency: razorpayResponse.data.currency || 'INR'
         });
 
-        return response.data;
+        return razorpayResponse.data;
     } catch (error) {
         console.log(error.response?.data || error.message || error);
+
+        if (booking && booking.status === BOOKING_STATUS.processing && error.code !== STATUS.GONE) {
+            await prisma.booking.update({
+                where: { id: booking.id },
+                data: {
+                    status: BOOKING_STATUS.cancelled
+                }
+            });
+        }
+
         if (error.response?.data?.error?.description) {
             throw {
                 err: error.response.data.error.description,
@@ -293,11 +327,19 @@ const createRazorpayOrder = async (data) => {
 };
 
 const verifyRazorpayPayment = async (data) => {
-    try {
-        const { booking, show, isExpired } = await getBookingWithShow(data.bookingId);
+    let booking = null;
 
-        if (isExpired) {
-            return booking;
+    try {
+        const response = await getBookingWithShow(data.bookingId);
+        booking = response.booking;
+        const show = response.show;
+
+        if (response.isExpired) {
+            throw {
+                err: 'Booking expired before payment verification',
+                code: STATUS.GONE,
+                data: response.booking
+            };
         }
 
         validatePaymentAmount(booking, data.amount);
@@ -368,6 +410,16 @@ const verifyRazorpayPayment = async (data) => {
         return finalizeSuccessfulPayment(booking, show, payment);
     } catch (error) {
         console.log(error.response?.data || error.message || error);
+
+        if (booking && booking.status === BOOKING_STATUS.processing && error.code !== STATUS.GONE) {
+            await prisma.booking.update({
+                where: { id: booking.id },
+                data: {
+                    status: BOOKING_STATUS.cancelled
+                }
+            });
+        }
+
         if (error.response?.data?.error?.description) {
             throw {
                 err: error.response.data.error.description,

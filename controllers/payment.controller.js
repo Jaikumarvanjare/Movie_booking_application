@@ -25,7 +25,11 @@ const create = async (req, res) => {
         successResponseBody.message = 'Booking completed successfully';
         return res.status(STATUS.OK).json(successResponseBody);
     } catch (error) {
+        errorResponseBody.message = 'Payment processing failed';
         errorResponseBody.err = error.err || error;
+        if (error.data) {
+            errorResponseBody.data = error.data;
+        }
         return res.status(error.code || STATUS.INTERNAL_SERVER_ERROR).json(errorResponseBody);
     }
 };
@@ -40,7 +44,11 @@ const createRazorpayOrder = async (req, res) => {
         successResponseBody.message = 'Razorpay order created successfully';
         return res.status(STATUS.CREATED).json(successResponseBody);
     } catch (error) {
+        errorResponseBody.message = 'Razorpay order creation failed';
         errorResponseBody.err = error.err || error;
+        if (error.data) {
+            errorResponseBody.data = error.data;
+        }
         return res.status(error.code || STATUS.INTERNAL_SERVER_ERROR).json(errorResponseBody);
     }
 };
@@ -55,7 +63,11 @@ const verifyRazorpayPayment = async (req, res) => {
         successResponseBody.message = 'Razorpay payment verified successfully';
         return res.status(STATUS.OK).json(successResponseBody);
     } catch (error) {
+        errorResponseBody.message = 'Payment verification failed';
         errorResponseBody.err = error.err || error;
+        if (error.data) {
+            errorResponseBody.data = error.data;
+        }
         return res.status(error.code || STATUS.INTERNAL_SERVER_ERROR).json(errorResponseBody);
     }
 };
@@ -70,6 +82,7 @@ const getPaymentDetailsById = async (req, res) => {
         successResponseBody.message = "Successfully fetched the booking and payment details";
         return res.status(STATUS.OK).json(successResponseBody);
     } catch (error) {
+        errorResponseBody.message = 'Payment fetch failed';
         errorResponseBody.err = error.err || error;
         return res.status(error.code || STATUS.INTERNAL_SERVER_ERROR).json(errorResponseBody);
     }
@@ -85,6 +98,7 @@ const getAllPayments = async (req, res) => {
         successResponseBody.message = "Successfully fetched all the payments";
         return res.status(STATUS.OK).json(successResponseBody);
     } catch (error) {
+        errorResponseBody.message = 'Payment fetch failed';
         errorResponseBody.err = error.err || error;
         return res.status(error.code || STATUS.INTERNAL_SERVER_ERROR).json(errorResponseBody);
     }

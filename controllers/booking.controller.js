@@ -12,6 +12,7 @@ const create = async (req, res) => {
         successResponseBody.data = response;
         return res.status(STATUS.CREATED).json(successResponseBody);
     } catch (error) {
+        errorResponseBody.message = 'Booking creation failed';
         errorResponseBody.err = error.err || error;
         return res.status(error.code || STATUS.INTERNAL_SERVER_ERROR).json(errorResponseBody);
     }
@@ -27,6 +28,7 @@ const update = async (req, res) => {
         successResponseBody.message = "Successfully updated the booking";
         return res.status(STATUS.OK).json(successResponseBody);
     } catch (error) {
+        errorResponseBody.message = 'Booking update failed';
         errorResponseBody.err = error.err || error;
         return res.status(error.code || STATUS.INTERNAL_SERVER_ERROR).json(errorResponseBody);
     }
@@ -42,6 +44,7 @@ const getBookings = async (req, res) => {
         successResponseBody.message = "Successfully fetched the bookings";
         return res.status(STATUS.OK).json(successResponseBody);
     } catch (error) {
+        errorResponseBody.message = 'Booking fetch failed';
         errorResponseBody.err = error.err || error;
         return res.status(error.code || STATUS.INTERNAL_SERVER_ERROR).json(errorResponseBody);
     }
@@ -57,6 +60,7 @@ const getAllBookings = async (req, res) => {
         successResponseBody.message = "succesfully fetched the bookings";
         return res.status(STATUS.OK).json(successResponseBody);
     } catch (error) {
+        errorResponseBody.message = 'Booking fetch failed';
         errorResponseBody.err = error.err || error;
         return res.status(error.code || STATUS.INTERNAL_SERVER_ERROR).json(errorResponseBody);
     }
@@ -72,6 +76,7 @@ const getBookingById = async (req, res) => {
         successResponseBody.message = "Successfully fetched the booking";
         return res.status(STATUS.OK).json(successResponseBody);
     } catch (error) {
+        errorResponseBody.message = 'Booking fetch failed';
         errorResponseBody.err = error.err || error;
         return res.status(error.code || STATUS.INTERNAL_SERVER_ERROR).json(errorResponseBody);
     }

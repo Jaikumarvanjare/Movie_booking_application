@@ -17,6 +17,7 @@ const signup = async (req, res) => {
         return res.status(201).json(successResponseBody);
     } catch (error) {
         console.log(error);
+        errorResponseBody.message = 'Sign up failed';
         errorResponseBody.err = error.err || error;
         return res.status(error.code || 500).json(errorResponseBody);
     }
@@ -55,6 +56,7 @@ const signin = async (req, res) => {
         return res.status(200).json(successResponseBody);
     } catch (error) {
         console.log(error);
+        errorResponseBody.message = 'Sign in failed';
         errorResponseBody.err = error.err || error;
         return res.status(error.code || 500).json(errorResponseBody);
     }
@@ -84,6 +86,7 @@ const resetPassword = async (req, res) => {
 
         return res.status(200).json(successResponseBody);
     } catch (error) {
+        errorResponseBody.message = 'Password reset failed';
         errorResponseBody.err = error.err || error;
         return res.status(error.code || 500).json(errorResponseBody);
     }

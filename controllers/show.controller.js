@@ -12,6 +12,7 @@ const create = async (req, res) => {
         successResponseBody.data = response;
         return res.status(STATUS.OK).json(successResponseBody);
     } catch (error) {
+        errorResponseBody.message = 'Show creation failed';
         errorResponseBody.err = error.err || error;
         return res.status(error.code || STATUS.INTERNAL_SERVER_ERROR).json(errorResponseBody);
     }
@@ -27,6 +28,7 @@ const getShows = async (req, res) => {
         successResponseBody.data = response;
         return res.status(STATUS.OK).json(successResponseBody);
     } catch (error) {
+        errorResponseBody.message = 'Show fetch failed';
         errorResponseBody.err = error.err || error;
         return res.status(error.code || STATUS.INTERNAL_SERVER_ERROR).json(errorResponseBody);
     }
@@ -42,6 +44,7 @@ const destroy = async (req, res) => {
         successResponseBody.data = response;
         return res.status(STATUS.OK).json(successResponseBody);
     } catch (error) {
+        errorResponseBody.message = 'Show deletion failed';
         errorResponseBody.err = error.err || error;
         return res.status(error.code || STATUS.INTERNAL_SERVER_ERROR).json(errorResponseBody);
     }
@@ -57,6 +60,7 @@ const update = async (req, res) => {
         successResponseBody.data = response;
         return res.status(STATUS.OK).json(successResponseBody);
     } catch (error) {
+        errorResponseBody.message = 'Show update failed';
         errorResponseBody.err = error.err || error;
         return res.status(error.code || STATUS.INTERNAL_SERVER_ERROR).json(errorResponseBody);
     }
