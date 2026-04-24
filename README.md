@@ -371,6 +371,71 @@ GET    /mba/api/v1/payments
 
 ---
 
+## Profile And Account
+
+Authenticated profile management endpoints for the mobile app:
+
+```
+GET    /mba/api/v1/users/me
+PATCH  /mba/api/v1/users/me
+POST   /mba/api/v1/auth/change-password
+POST   /mba/api/v1/auth/logout
+```
+
+Rules:
+
+* `Authorization: Bearer <token>` is required on all four routes
+* `PATCH /users/me` only allows updating `name`
+* `email`, `role`, `status`, and `createdAt` are read-only in profile responses
+* `POST /auth/change-password` is the logged-in password flow
+* `PATCH /auth/reset` remains the existing password reset flow
+* `POST /auth/logout` is a stateless JWT acknowledgement endpoint in the current backend
+
+Profile response shape returned to mobile:
+
+```json
+{
+  "success": true,
+  "message": "Profile fetched successfully",
+  "data": {
+    "user": {
+      "id": "USER_ID",
+      "name": "John Doe",
+      "email": "john@example.com",
+      "role": "CUSTOMER",
+      "status": "APPROVED",
+      "createdAt": "2026-04-24T10:00:00.000Z"
+    }
+  },
+  "err": {}
+}
+```
+
+Update profile request:
+
+```json
+{
+  "name": "Updated User Name"
+}
+```
+
+Change password request:
+
+```json
+{
+  "currentPassword": "oldPassword123",
+  "newPassword": "newPassword123"
+}
+```
+
+Validation notes:
+
+* `name` is required, trimmed, and must be at least 2 characters
+* profile updates reject restricted fields such as `email`, `role`, `status`, and `password`
+* `newPassword` must be at least 6 characters for the new logged-in change-password route
+
+---
+
 # 🚀 Running the Backend
 
 Install dependencies:

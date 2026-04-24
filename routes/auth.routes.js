@@ -18,6 +18,17 @@ const routes = (app) => {
         authMiddleware.validateResetPasswordRequest,
         authController.resetPassword
     );
+    app.post(
+        '/mba/api/v1/auth/change-password',
+        authMiddleware.isAuthenticated,
+        authMiddleware.validateChangePasswordRequest,
+        authController.changePassword
+    );
+    app.post(
+        '/mba/api/v1/auth/logout',
+        authMiddleware.isAuthenticated,
+        authController.logout
+    );
 };
 
 module.exports = routes;

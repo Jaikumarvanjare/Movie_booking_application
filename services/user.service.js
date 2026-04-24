@@ -2,6 +2,15 @@ const prisma = require('../utils/prismaClient');
 const bcrypt = require('bcrypt');
 const { USER_ROLE, USER_STATUS, STATUS } = require('../utils/constants');
 
+const formatUserProfile = (user) => ({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.userRole,
+    status: user.userStatus,
+    createdAt: user.createdAt
+});
+
 const createUser = async (data) => {
     try {
         if (!data.userRole || data.userRole === USER_ROLE.customer) {
@@ -77,6 +86,15 @@ const getUserById = async (id) => {
     }
 };
 
+const getUserProfileById = async (id) => {
+    try {
+        const user = await getUserById(id);
+        return formatUserProfile(user);
+    } catch (error) {
+        throw error;
+    }
+};
+
 const updateUserRoleOrStatus = async (data, userId) => {
     try {
         let updateQuery = {};
@@ -103,6 +121,29 @@ const updateUserRoleOrStatus = async (data, userId) => {
     }
 };
 
+const updateProfile = async (userId, data) => {
+    try {
+        const existingUser = await prisma.user.findUnique({
+            where: { id: userId }
+        });
+
+        if (!existingUser) {
+            throw { err: 'No user found for the given id', code: STATUS.NOT_FOUND };
+        }
+
+        const response = await prisma.user.update({
+            where: { id: userId },
+            data: {
+                name: data.name.trim()
+            }
+        });
+
+        return formatUserProfile(response);
+    } catch (error) {
+        throw error;
+    }
+};
+
 const updatePassword = async (userId, newPassword) => {
     try {
         const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -124,6 +165,9 @@ module.exports = {
     createUser,
     getUserByEmail,
     getUserById,
+    getUserProfileById,
     updateUserRoleOrStatus,
+    updateProfile,
+    formatUserProfile,
     updatePassword
 };

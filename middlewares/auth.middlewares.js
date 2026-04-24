@@ -95,6 +95,27 @@ const validateResetPasswordRequest = async (req, res, next) => {
     next();
 };
 
+const validateChangePasswordRequest = async (req, res, next) => {
+    const errorResponseBody = createErrorResponseBody();
+
+    if (!req.body.currentPassword) {
+        errorResponseBody.err = 'Missing the current password in the request';
+        return res.status(STATUS.BAD_REQUEST).json(errorResponseBody);
+    }
+
+    if (!req.body.newPassword) {
+        errorResponseBody.err = 'Missing the new password in the request';
+        return res.status(STATUS.BAD_REQUEST).json(errorResponseBody);
+    }
+
+    if (typeof req.body.newPassword !== 'string' || req.body.newPassword.trim().length < 6) {
+        errorResponseBody.err = 'New password must be at least 6 characters long';
+        return res.status(STATUS.BAD_REQUEST).json(errorResponseBody);
+    }
+
+    next();
+};
+
 const isAdmin = async (req, res, next) => {
     const errorResponseBody = createErrorResponseBody();
 
@@ -148,6 +169,7 @@ module.exports = {
     validateSigninRequest,
     isAuthenticated,
     validateResetPasswordRequest,
+    validateChangePasswordRequest,
     isAdmin,
     isClient,
     isAdminOrClient

@@ -17,6 +17,38 @@ const update = async (req, res) => {
     }
 };
 
+const getProfile = async (req, res) => {
+    const successResponseBody = createSuccessResponseBody();
+    const errorResponseBody = createErrorResponseBody();
+
+    try {
+        const response = await userService.getUserProfileById(req.user);
+        successResponseBody.data = { user: response };
+        successResponseBody.message = 'Profile fetched successfully';
+        return res.status(STATUS.OK).json(successResponseBody);
+    } catch (error) {
+        errorResponseBody.err = error.err || error;
+        return res.status(error.code || STATUS.INTERNAL_SERVER_ERROR).json(errorResponseBody);
+    }
+};
+
+const updateProfile = async (req, res) => {
+    const successResponseBody = createSuccessResponseBody();
+    const errorResponseBody = createErrorResponseBody();
+
+    try {
+        const response = await userService.updateProfile(req.user, req.body);
+        successResponseBody.data = { user: response };
+        successResponseBody.message = 'Profile updated successfully';
+        return res.status(STATUS.OK).json(successResponseBody);
+    } catch (error) {
+        errorResponseBody.err = error.err || error;
+        return res.status(error.code || STATUS.INTERNAL_SERVER_ERROR).json(errorResponseBody);
+    }
+};
+
 module.exports = {
-    update
+    update,
+    getProfile,
+    updateProfile
 };
