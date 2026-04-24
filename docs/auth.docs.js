@@ -80,5 +80,47 @@ module.exports = {
         500: { description: 'Internal server error' }
       }
     }
+  },
+  '/mba/api/v1/auth/change-password': {
+    post: {
+      tags: ['Auth'],
+      summary: 'Change password for the authenticated user',
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              required: ['currentPassword', 'newPassword'],
+              properties: {
+                currentPassword: { type: 'string', example: 'oldPassword123' },
+                newPassword: { type: 'string', example: 'newPassword123' }
+              }
+            }
+          }
+        }
+      },
+      responses: {
+        200: { description: 'Password changed successfully' },
+        400: { description: 'Bad request' },
+        401: { description: 'Unauthorized' },
+        403: { description: 'Forbidden' },
+        500: { description: 'Internal server error' }
+      }
+    }
+  },
+  '/mba/api/v1/auth/logout': {
+    post: {
+      tags: ['Auth'],
+      summary: 'Logout the authenticated user',
+      security: [{ bearerAuth: [] }],
+      responses: {
+        200: { description: 'Logged out successfully' },
+        401: { description: 'Unauthorized' },
+        403: { description: 'Forbidden' },
+        500: { description: 'Internal server error' }
+      }
+    }
   }
 };

@@ -92,8 +92,46 @@ const resetPassword = async (req, res) => {
     }
 };
 
+const changePassword = async (req, res) => {
+    const successResponseBody = createSuccessResponseBody();
+    const errorResponseBody = createErrorResponseBody();
+
+    try {
+        const user = await userService.getUserById(req.user);
+
+        const isCurrentPasswordValid = await bcrypt.compare(req.body.currentPassword, user.password);
+
+        if (!isCurrentPasswordValid) {
+            throw { err: "Invalid current password", code: 403 };
+        }
+
+        await userService.updatePassword(req.user, req.body.newPassword);
+
+        successResponseBody.data = {};
+        successResponseBody.message = "Password changed successfully";
+
+        return res.status(200).json(successResponseBody);
+    } catch (error) {
+        errorResponseBody.message = 'Password change failed';
+        errorResponseBody.err = error.err || error;
+        return res.status(error.code || 500).json(errorResponseBody);
+    }
+};
+
+const logout = async (req, res) => {
+    const successResponseBody = createSuccessResponseBody();
+
+    // JWT authentication is stateless here, so logout is an acknowledgement endpoint.
+    successResponseBody.data = {};
+    successResponseBody.message = "Logged out successfully";
+
+    return res.status(200).json(successResponseBody);
+};
+
 module.exports = {
     signup,
     signin,
-    resetPassword
+    resetPassword,
+    changePassword,
+    logout
 };
