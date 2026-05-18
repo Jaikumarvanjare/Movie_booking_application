@@ -32,6 +32,15 @@ app.listen(PORT, () => {
   console.log("👉 npm run clean         → Remove node_modules");
   console.log("👉 npm run reinstall     → Fresh install dependencies\n");
 
+  console.log("📨 Notification Service Commands:");
+  console.log("---------------------------------");
+  console.log("👉 redis-server          → Start Redis message queue");
+  console.log("👉 cd ../NotificationService");
+  console.log("👉 npm run dev           → Start notification API server");
+  console.log("👉 npm run worker        → Start email queue worker");
+  console.log("👉 http://localhost:3001/health");
+  console.log("👉 http://localhost:3001/admin/queues\n");
+
   console.log("💡 Notes:");
   console.log("---------------------------------");
   console.log("✔ Seeding is idempotent (safe to re-run)");

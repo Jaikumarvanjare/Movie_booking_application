@@ -9,6 +9,7 @@ const PAYMENT_GATEWAYS = {
     demo: 'DEMO',
     razorpay: 'RAZORPAY'
 };
+const BOOKING_PAYMENT_TIMEOUT_MINUTES = 10;
 
 const parseSerializedJson = (value) => {
     if (!value || typeof value !== 'string') {
@@ -60,7 +61,7 @@ const getBookingWithShow = async (bookingId) => {
     const currentTime = Date.now();
     const minutes = Math.floor(((currentTime - bookingTime) / 1000) / 60);
 
-    if (minutes > 5) {
+    if (minutes > BOOKING_PAYMENT_TIMEOUT_MINUTES) {
         const expiredBooking = await prisma.booking.update({
             where: { id: booking.id },
             data: {

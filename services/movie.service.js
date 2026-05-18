@@ -99,13 +99,6 @@ const fetchMovies = async (filter) => {
         where: query
     });
 
-    if (movies.length === 0) {
-        throw {
-            err: 'Not able to find the queries',
-            code: STATUS.NOT_FOUND
-        };
-    }
-
     return movies;
 };
 

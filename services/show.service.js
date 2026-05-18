@@ -57,13 +57,6 @@ const getShows = async (data) => {
             }
         });
 
-        if (response.length === 0) {
-            throw {
-                err: 'No shows found',
-                code: STATUS.NOT_FOUND
-            };
-        }
-
         return response;
     } catch (error) {
         throw error;
