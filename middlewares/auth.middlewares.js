@@ -116,6 +116,43 @@ const validateChangePasswordRequest = async (req, res, next) => {
     next();
 };
 
+const validateForgotPasswordRequest = (req, res, next) => {
+    const errorResponseBody = createErrorResponseBody();
+
+    if (!req.body.email) {
+        errorResponseBody.err = 'Email is required';
+        return res.status(STATUS.BAD_REQUEST).json(errorResponseBody);
+    }
+
+    next();
+};
+
+const validateCompletePasswordResetRequest = (req, res, next) => {
+    const errorResponseBody = createErrorResponseBody();
+
+    if (!req.body.email) {
+        errorResponseBody.err = 'Email is required';
+        return res.status(STATUS.BAD_REQUEST).json(errorResponseBody);
+    }
+
+    if (!req.body.otp) {
+        errorResponseBody.err = 'OTP is required';
+        return res.status(STATUS.BAD_REQUEST).json(errorResponseBody);
+    }
+
+    if (!req.body.newPassword) {
+        errorResponseBody.err = 'New password is required';
+        return res.status(STATUS.BAD_REQUEST).json(errorResponseBody);
+    }
+
+    if (typeof req.body.newPassword !== 'string' || req.body.newPassword.trim().length < 6) {
+        errorResponseBody.err = 'New password must be at least 6 characters long';
+        return res.status(STATUS.BAD_REQUEST).json(errorResponseBody);
+    }
+
+    next();
+};
+
 const isAdmin = async (req, res, next) => {
     const errorResponseBody = createErrorResponseBody();
 
@@ -170,6 +207,8 @@ module.exports = {
     isAuthenticated,
     validateResetPasswordRequest,
     validateChangePasswordRequest,
+    validateForgotPasswordRequest,
+    validateCompletePasswordResetRequest,
     isAdmin,
     isClient,
     isAdminOrClient

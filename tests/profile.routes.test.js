@@ -115,7 +115,9 @@ describe('Profile and account routes', () => {
     });
 
     it('POST /auth/change-password succeeds with correct current password', async () => {
-        bcrypt.compare.mockResolvedValue(true);
+        bcrypt.compare
+            .mockResolvedValueOnce(true)
+            .mockResolvedValueOnce(false);
         userService.updatePassword.mockResolvedValue({ id: authenticatedUser.id });
 
         const response = await request(app)
@@ -128,6 +130,7 @@ describe('Profile and account routes', () => {
         expect(response.body.message).toBe('Password changed successfully');
         expect(response.body.data).toEqual({});
         expect(bcrypt.compare).toHaveBeenCalledWith('oldPassword123', authenticatedUser.password);
+        expect(bcrypt.compare).toHaveBeenCalledWith('newPassword123', authenticatedUser.password);
         expect(userService.updatePassword).toHaveBeenCalledWith(authenticatedUser.id, 'newPassword123');
     });
 
@@ -143,6 +146,23 @@ describe('Profile and account routes', () => {
         expect(response.body.success).toBe(false);
         expect(response.body.message).toBe('Password change failed');
         expect(response.body.err).toBe('Invalid current password');
+    });
+
+    it('POST /auth/change-password fails when new password matches current password', async () => {
+        bcrypt.compare
+            .mockResolvedValueOnce(true)
+            .mockResolvedValueOnce(true);
+
+        const response = await request(app)
+            .post('/mba/api/v1/auth/change-password')
+            .set(authHeader)
+            .send({ currentPassword: 'oldPassword123', newPassword: 'oldPassword123' });
+
+        expect(response.status).toBe(400);
+        expect(response.body.success).toBe(false);
+        expect(response.body.message).toBe('Password change failed');
+        expect(response.body.err).toBe('New password cannot be the same as the current password');
+        expect(userService.updatePassword).not.toHaveBeenCalled();
     });
 
     it('POST /auth/change-password fails for invalid new password', async () => {

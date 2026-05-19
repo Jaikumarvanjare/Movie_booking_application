@@ -12,6 +12,10 @@ model User {
   name       String
   email      String   @unique
   password   String
+  about      String?
+  profilePhotoUrl String?
+  passwordResetOtpHash String?
+  passwordResetOtpExpiresAt DateTime?
   userRole   String   @default("CUSTOMER")
   userStatus String   @default("APPROVED")
   createdAt  DateTime @default(now())

@@ -7,7 +7,6 @@ const theatreDocs = require('../docs/theatre.docs');
 const showDocs = require('../docs/show.docs');
 const bookingDocs = require('../docs/booking.docs');
 const paymentDocs = require('../docs/payment.docs');
-const notificationDocs = require('../docs/notification.docs');
 
 const swaggerDocument = {
   openapi: '3.0.0',
@@ -152,8 +151,7 @@ const swaggerDocument = {
     ...theatreDocs,
     ...showDocs,
     ...bookingDocs,
-    ...paymentDocs,
-    ...notificationDocs
+    ...paymentDocs
   }
 };
 

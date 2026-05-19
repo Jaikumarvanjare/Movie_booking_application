@@ -23,7 +23,7 @@
     "git.enableSmartCommit": true,
     "jupyter.askForKernelRestart": false,
     "workbench.editor.empty.hint": "hidden",
-    "gitlens.ai.model": "vscode",
+    "gitlens.ai.model": "openaicompatible:gpt-5.2",
     "gitlens.ai.vscode.model": "copilot:gpt-4.1",
     "workbench.iconTheme": "material-icon-theme",
     "terminal.integrated.fontWeightBold": "bold",
@@ -31,4 +31,6 @@
     "editor.fontFamily": "'CaskaydiaCove Nerd Font', Consolas, monospace",
     "terminal.integrated.fontFamily": "'CaskaydiaCove Nerd Font'",
     "editor.inlineSuggest.fontFamily": "'CaskaydiaCove Nerd Font'",
+    "editor.formatOnSaveMode": "modificationsIfAvailable",
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
 }
