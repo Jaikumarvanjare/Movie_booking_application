@@ -12,6 +12,16 @@ const routes = (app) => {
         authMiddleware.validateSigninRequest,
         authController.signin
     );
+    app.post(
+        '/mba/api/v1/auth/forgot-password',
+        authMiddleware.validateForgotPasswordRequest,
+        authController.requestPasswordReset
+    );
+    app.post(
+        '/mba/api/v1/auth/reset-password',
+        authMiddleware.validateCompletePasswordResetRequest,
+        authController.completePasswordReset
+    );
     app.patch(
         '/mba/api/v1/auth/reset',
         authMiddleware.isAuthenticated,

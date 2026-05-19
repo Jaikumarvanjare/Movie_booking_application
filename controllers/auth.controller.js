@@ -3,6 +3,7 @@ const userService = require('../services/user.service');
 const { createSuccessResponseBody, createErrorResponseBody } = require('../utils/responsebody');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const emailService = require('../services/email.service');
 
 const signup = async (req, res) => {
     const successResponseBody = createSuccessResponseBody();
@@ -79,6 +80,12 @@ const resetPassword = async (req, res) => {
             throw { err: "Invalid old password, please write the correct old password", code: 403 };
         }
 
+        const isSameAsOldPassword = await bcrypt.compare(req.body.newPassword, user.password);
+
+        if (isSameAsOldPassword) {
+            throw { err: "New password cannot be the same as the old password", code: 400 };
+        }
+
         const updatedUser = await userService.updatePassword(req.user, req.body.newPassword);
         successResponseBody.data = updatedUser;
 
@@ -105,6 +112,12 @@ const changePassword = async (req, res) => {
             throw { err: "Invalid current password", code: 403 };
         }
 
+        const isSameAsCurrentPassword = await bcrypt.compare(req.body.newPassword, user.password);
+
+        if (isSameAsCurrentPassword) {
+            throw { err: "New password cannot be the same as the current password", code: 400 };
+        }
+
         await userService.updatePassword(req.user, req.body.newPassword);
 
         successResponseBody.data = {};
@@ -113,6 +126,70 @@ const changePassword = async (req, res) => {
         return res.status(200).json(successResponseBody);
     } catch (error) {
         errorResponseBody.message = 'Password change failed';
+        errorResponseBody.err = error.err || error;
+        return res.status(error.code || 500).json(errorResponseBody);
+    }
+};
+
+const requestPasswordReset = async (req, res) => {
+    const successResponseBody = createSuccessResponseBody();
+    const errorResponseBody = createErrorResponseBody();
+
+    try {
+        const user = await userService.getUserByEmail(req.body.email);
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const otpHash = await bcrypt.hash(otp, 10);
+        const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+        await userService.setPasswordResetOtp(user.id, otpHash, expiresAt);
+        await emailService.sendPasswordResetOtp(user.email, otp, 10);
+
+        successResponseBody.data = {};
+        successResponseBody.message = 'Password reset OTP sent to your email';
+        return res.status(200).json(successResponseBody);
+    } catch (error) {
+        errorResponseBody.message = 'Password reset request failed';
+        errorResponseBody.err = error.err || error;
+        return res.status(error.code || 500).json(errorResponseBody);
+    }
+};
+
+const completePasswordReset = async (req, res) => {
+    const successResponseBody = createSuccessResponseBody();
+    const errorResponseBody = createErrorResponseBody();
+
+    try {
+        const user = await userService.getUserByEmail(req.body.email);
+
+        if (!user.passwordResetOtpHash || !user.passwordResetOtpExpiresAt) {
+            throw { err: 'Please request a password reset OTP first', code: 400 };
+        }
+
+        if (new Date(user.passwordResetOtpExpiresAt).getTime() < Date.now()) {
+            await userService.clearPasswordResetOtp(user.id);
+            throw { err: 'Password reset OTP has expired', code: 410 };
+        }
+
+        const isValidOtp = await bcrypt.compare(req.body.otp, user.passwordResetOtpHash);
+
+        if (!isValidOtp) {
+            throw { err: 'Invalid password reset OTP', code: 403 };
+        }
+
+        const isSameAsCurrentPassword = await bcrypt.compare(req.body.newPassword, user.password);
+
+        if (isSameAsCurrentPassword) {
+            throw { err: 'New password cannot be the same as the current password', code: 400 };
+        }
+
+        await userService.updatePassword(user.id, req.body.newPassword);
+        await userService.clearPasswordResetOtp(user.id);
+
+        successResponseBody.data = {};
+        successResponseBody.message = 'Password reset successfully';
+        return res.status(200).json(successResponseBody);
+    } catch (error) {
+        errorResponseBody.message = 'Password reset failed';
         errorResponseBody.err = error.err || error;
         return res.status(error.code || 500).json(errorResponseBody);
     }
@@ -133,5 +210,7 @@ module.exports = {
     signin,
     resetPassword,
     changePassword,
+    requestPasswordReset,
+    completePasswordReset,
     logout
 };

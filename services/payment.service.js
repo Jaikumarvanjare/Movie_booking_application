@@ -1,7 +1,7 @@
 const axios = require('axios');
 const crypto = require('crypto');
 const prisma = require('../utils/prismaClient');
-const sendMail = require('../services/email.service');
+const emailService = require('../services/email.service');
 const { STATUS, BOOKING_STATUS, PAYMENT_STATUS, USER_ROLE } = require('../utils/constants');
 
 const RAZORPAY_BASE_URL = 'https://api.razorpay.com/v1';
@@ -130,11 +130,7 @@ const buildUpdatedSeatConfiguration = (show, booking) => {
 
 const sendBookingConfirmation = async (booking) => {
     try {
-        await sendMail(
-            "Movie Booking Confirmed",
-            booking.userId,
-            `Your booking has been confirmed. Seats booked: ${booking.noOfSeats}`
-        );
+        await emailService.sendBookingConfirmation(booking);
     } catch (mailError) {
         console.log("Mail sending failed:", mailError.message);
     }

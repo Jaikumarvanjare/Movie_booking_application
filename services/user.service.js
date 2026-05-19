@@ -6,6 +6,8 @@ const formatUserProfile = (user) => ({
     id: user.id,
     name: user.name,
     email: user.email,
+    about: user.about || '',
+    profilePhotoUrl: user.profilePhotoUrl || '',
     role: user.userRole,
     status: user.userStatus,
     createdAt: user.createdAt
@@ -43,6 +45,8 @@ const createUser = async (data) => {
                 name: data.name,
                 email: data.email.toLowerCase().trim(),
                 password: hashedPassword,
+                about: data.about?.trim() || '',
+                profilePhotoUrl: data.profilePhotoUrl || '',
                 userRole: data.userRole,
                 userStatus: data.userStatus
             }
@@ -131,11 +135,15 @@ const updateProfile = async (userId, data) => {
             throw { err: 'No user found for the given id', code: STATUS.NOT_FOUND };
         }
 
+        const updateData = {};
+
+        if (typeof data.name === 'string') updateData.name = data.name.trim();
+        if (typeof data.about === 'string') updateData.about = data.about.trim();
+        if (typeof data.profilePhotoUrl === 'string') updateData.profilePhotoUrl = data.profilePhotoUrl.trim();
+
         const response = await prisma.user.update({
             where: { id: userId },
-            data: {
-                name: data.name.trim()
-            }
+            data: updateData
         });
 
         return formatUserProfile(response);
@@ -161,6 +169,34 @@ const updatePassword = async (userId, newPassword) => {
     }
 };
 
+const setPasswordResetOtp = async (userId, otpHash, expiresAt) => {
+    try {
+        return prisma.user.update({
+            where: { id: userId },
+            data: {
+                passwordResetOtpHash: otpHash,
+                passwordResetOtpExpiresAt: expiresAt
+            }
+        });
+    } catch (error) {
+        throw error;
+    }
+};
+
+const clearPasswordResetOtp = async (userId) => {
+    try {
+        return prisma.user.update({
+            where: { id: userId },
+            data: {
+                passwordResetOtpHash: null,
+                passwordResetOtpExpiresAt: null
+            }
+        });
+    } catch (error) {
+        throw error;
+    }
+};
+
 module.exports = {
     createUser,
     getUserByEmail,
@@ -169,5 +205,7 @@ module.exports = {
     updateUserRoleOrStatus,
     updateProfile,
     formatUserProfile,
-    updatePassword
+    updatePassword,
+    setPasswordResetOtp,
+    clearPasswordResetOtp
 };
