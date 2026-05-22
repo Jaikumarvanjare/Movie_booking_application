@@ -1,7 +1,7 @@
 const { createErrorResponseBody } = require('../utils/responsebody');
 const jwt = require("jsonwebtoken");
 const userService = require("../services/user.service");
-const { USER_ROLE, STATUS } = require('../utils/constants');
+const { USER_ROLE, USER_STATUS, STATUS } = require('../utils/constants');
 
 const validateSignupRequest = (req, res, next) => {
     const errorResponseBody = createErrorResponseBody();
@@ -62,6 +62,11 @@ const isAuthenticated = async (req, res, next) => {
         }
 
         const user = await userService.getUserById(response.id);
+        if (user.userStatus !== USER_STATUS.approved) {
+            errorResponseBody.err = "Your account is not approved. Please contact the administrator.";
+            return res.status(STATUS.FORBIDDEN).json(errorResponseBody);
+        }
+
         req.user = user.id;
         next();
     } catch (error) {

@@ -4,6 +4,7 @@ const { createSuccessResponseBody, createErrorResponseBody } = require('../utils
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const emailService = require('../services/email.service');
+const { USER_STATUS, STATUS } = require('../utils/constants');
 
 const signup = async (req, res) => {
     const successResponseBody = createSuccessResponseBody();
@@ -39,6 +40,13 @@ const signin = async (req, res) => {
 
         if (!isValidPassword) {
             throw { err: "Invalid password", code: 401 };
+        }
+
+        if (user.userStatus !== USER_STATUS.approved) {
+            throw {
+                err: "Your account is not approved. Please contact the administrator.",
+                code: STATUS.FORBIDDEN
+            };
         }
 
         const token = jwt.sign(
