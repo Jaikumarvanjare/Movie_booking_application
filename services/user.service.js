@@ -99,6 +99,46 @@ const getUserProfileById = async (id) => {
     }
 };
 
+const getUsers = async ({ search } = {}) => {
+    try {
+        const trimmedSearch = search?.trim();
+        const where = {};
+
+        if (trimmedSearch) {
+            const searchFilters = [
+                {
+                    name: {
+                        contains: trimmedSearch,
+                        mode: 'insensitive'
+                    }
+                },
+                {
+                    email: {
+                        contains: trimmedSearch.toLowerCase(),
+                        mode: 'insensitive'
+                    }
+                }
+            ];
+
+            if (/^[a-f\d]{24}$/i.test(trimmedSearch)) {
+                searchFilters.push({ id: trimmedSearch });
+            }
+
+            where.OR = searchFilters;
+        }
+
+        const users = await prisma.user.findMany({
+            where,
+            orderBy: { createdAt: 'desc' },
+            take: 30
+        });
+
+        return users.map(formatUserProfile);
+    } catch (error) {
+        throw error;
+    }
+};
+
 const updateUserRoleOrStatus = async (data, userId) => {
     try {
         let updateQuery = {};
@@ -202,6 +242,7 @@ module.exports = {
     getUserByEmail,
     getUserById,
     getUserProfileById,
+    getUsers,
     updateUserRoleOrStatus,
     updateProfile,
     formatUserProfile,

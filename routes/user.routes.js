@@ -8,6 +8,12 @@ const routes = (app) => {
         authMiddleware.isAuthenticated,
         userController.getProfile
     );
+    app.get(
+        '/mba/api/v1/users',
+        authMiddleware.isAuthenticated,
+        authMiddleware.isAdmin,
+        userController.getUsers
+    );
     app.patch(
         '/mba/api/v1/users/me',
         authMiddleware.isAuthenticated,

@@ -1,5 +1,7 @@
 # 🎬 Movie Booking Application
 
+Release version: `1.0.0`
+
 A backend system that allows users to browse movies, view theatres, book tickets, and complete payments.
 The system is built using **Node.js, Express, MongoDB**, and follows a clean **layered backend architecture**.
 
@@ -29,10 +31,12 @@ After a successful payment, the system sends a request to the **Notification Ser
 * Node.js
 * Express.js
 * MongoDB
-* Mongoose
+* Prisma ORM
 * JWT Authentication
 * bcrypt
 * Axios (service communication)
+* Razorpay
+* Jest + Supertest
 
 ## Microservices
 
@@ -89,6 +93,8 @@ Contain the main business logic.
 ### Models
 
 Define MongoDB schemas.
+
+> Note: the current implementation uses Prisma models in `prisma/schema.prisma` with MongoDB.
 
 ---
 
@@ -322,6 +328,8 @@ This service handles:
 ```
 POST   /mba/api/v1/auth/signup
 POST   /mba/api/v1/auth/signin
+POST   /mba/api/v1/auth/logout
+POST   /mba/api/v1/auth/change-password
 PATCH  /mba/api/v1/auth/reset
 ```
 
@@ -356,7 +364,9 @@ DELETE /mba/api/v1/theatres/:id
 ```
 POST   /mba/api/v1/bookings
 GET    /mba/api/v1/bookings
+GET    /mba/api/v1/bookings/all
 GET    /mba/api/v1/bookings/:id
+PATCH  /mba/api/v1/bookings/:id
 ```
 
 ---
@@ -368,6 +378,20 @@ POST   /mba/api/v1/payments
 GET    /mba/api/v1/payments/:id
 GET    /mba/api/v1/payments
 ```
+
+---
+
+## Admin Users
+
+```
+GET    /mba/api/v1/users
+PATCH  /mba/api/v1/users/:id
+```
+
+Rules:
+
+* `GET /users` is admin-only and supports an optional `search` query
+* `PATCH /users/:id` is admin-only and updates user role/status
 
 ---
 
@@ -448,15 +472,42 @@ Create `.env`
 
 ```
 PORT=3000
-DB_URL=your_mongodb_connection
+NODE_ENV=development
+DATABASE_URL=your_mongodb_connection
 AUTH_KEY=your_secret_key
 NOTI_SERVICE=http://localhost:3001
+RAZORPAY_KEY_ID=your_razorpay_key_id
+RAZORPAY_KEY_SECRET=your_razorpay_key_secret
 ```
+
+Use `.env.example` as the source template.
 
 Start server:
 
 ```
 npm start
+```
+
+Development server:
+
+```
+npm run dev
+```
+
+Run tests:
+
+```
+npm test
+```
+
+Database commands:
+
+```
+npm run db:generate
+npm run db:push
+npm run seed
+npm run seed:admin
+npm run seed:demo
 ```
 
 Server runs on:
@@ -504,3 +555,13 @@ This project demonstrates understanding of:
 * Microservice integration
 * Asynchronous processing
 * Queue-based systems
+
+---
+
+# 🏷 Release Tag
+
+For the current aligned release, tag this repository as:
+
+```
+backend-v1.0.0
+```

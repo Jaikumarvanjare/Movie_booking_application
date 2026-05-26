@@ -32,6 +32,21 @@ const getProfile = async (req, res) => {
     }
 };
 
+const getUsers = async (req, res) => {
+    const successResponseBody = createSuccessResponseBody();
+    const errorResponseBody = createErrorResponseBody();
+
+    try {
+        const response = await userService.getUsers({ search: req.query.search });
+        successResponseBody.data = response;
+        successResponseBody.message = 'Users fetched successfully';
+        return res.status(STATUS.OK).json(successResponseBody);
+    } catch (error) {
+        errorResponseBody.err = error.err || error;
+        return res.status(error.code || STATUS.INTERNAL_SERVER_ERROR).json(errorResponseBody);
+    }
+};
+
 const updateProfile = async (req, res) => {
     const successResponseBody = createSuccessResponseBody();
     const errorResponseBody = createErrorResponseBody();
@@ -49,6 +64,7 @@ const updateProfile = async (req, res) => {
 
 module.exports = {
     update,
+    getUsers,
     getProfile,
     updateProfile
 };
