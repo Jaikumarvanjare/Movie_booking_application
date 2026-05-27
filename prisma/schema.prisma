@@ -42,7 +42,7 @@ model Movie {
 
 model Theatre {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  name        String   @unique
+  name        String
   description String?
   city        String
   pincode     Int

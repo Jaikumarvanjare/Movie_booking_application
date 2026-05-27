@@ -23,6 +23,47 @@ const parseSerializedJson = (value) => {
     }
 };
 
+const parseBookedSeats = (value) => {
+    const parsed = parseSerializedJson(value);
+    if (Array.isArray(parsed)) {
+        return parsed
+            .map((seat) => {
+                if (typeof seat === 'string') {
+                    return parseSeatLabel(seat);
+                }
+                if (seat && typeof seat === 'object') {
+                    return {
+                        rowNumber: Number(seat.rowNumber),
+                        seatNumber: Number(seat.seatNumber)
+                    };
+                }
+                return null;
+            })
+            .filter((seat) => seat && seat.rowNumber && seat.seatNumber);
+    }
+
+    if (typeof value !== 'string') {
+        return [];
+    }
+
+    return value
+        .split(',')
+        .map((seat) => parseSeatLabel(seat.trim()))
+        .filter(Boolean);
+};
+
+const parseSeatLabel = (label) => {
+    const match = /^([A-Z])(\d+)$/i.exec(label || '');
+    if (!match) {
+        return null;
+    }
+
+    return {
+        rowNumber: match[1].toUpperCase().charCodeAt(0) - 64,
+        seatNumber: Number(match[2])
+    };
+};
+
 const getBookingWithShow = async (bookingId) => {
     const booking = await prisma.booking.findUnique({
         where: { id: bookingId }
@@ -97,7 +138,7 @@ const buildUpdatedSeatConfiguration = (show, booking) => {
 
     if (show.seatConfiguration && booking.seat) {
         const showSeatConfig = parseSerializedJson(show.seatConfiguration);
-        const bookedSeats = parseSerializedJson(booking.seat);
+        const bookedSeats = parseBookedSeats(booking.seat);
 
         if (!showSeatConfig?.rows || !Array.isArray(bookedSeats)) {
             return updatedSeatConfiguration;
